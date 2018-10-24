@@ -1,0 +1,17 @@
+---
+
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  vars_files:
+    - vars/postgres.yml
+  roles:
+    - software
+    - geerlingguy.postgresql
+
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - vars/postgres.yml
+  roles:
+    - enviroment

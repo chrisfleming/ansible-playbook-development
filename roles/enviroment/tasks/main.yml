@@ -1,0 +1,47 @@
+- name: oh my zsh
+  git:
+    repo: https://github.com/robbyrussell/oh-my-zsh
+    dest: ~/.oh-my-zsh
+    depth: 1
+- pip:
+    executable: pip3
+    name: hatch
+    extra_args: --user
+# Possibly an ordering issue here, also don't think I need these...
+# - pip:
+#    executable: pip3
+#    name: pybin
+#    extra_args: --user
+#- pip:
+#    executable: pip3
+#    name: virtualenv
+#    extra_args: --user
+- git:
+    repo: git@github.com:chrisfleming/my-enviroment.git
+    dest: $HOME/projects/my-enviroment
+- name: Setup enviroment
+  command: $HOME/projects/my-enviroment/bin/setup_links.sh
+- name: tmux plugins
+  command: ~/.tmux/plugins/tpm/bin/install_plugins
+
+- name: list virtualenvs
+  command: hatch env -ll
+  register: hatchenvs
+- name: Add python to hatch
+  shell: hatch pypath py2 `which python`
+  when: "'neovim2' in hatchenvs"
+- name: Add python to hatch
+  shell: hatch pypath py3 `which python3`
+  when: "'neovim3' in hatchenvs"
+- name: neovim virtualenvs py2
+  command: hatch env -py py2 neovim2
+  when: "'neovim2' in hatchenvs"
+- name: neovim virtualenvs py3
+  command: hatch env -py py3 neovim3
+  when: "'neovim3' in hatchenvs"
+- name: neovim2 mnodules
+  command: hatch shell neovim2 hatch install -q neovim
+  when: "'neovim2' in hatchenvs"
+- name: neovim3 mnodules
+  command: hatch shell neovim3 hatch install -q neovim
+  when: "'neovim3' in hatchenvs"

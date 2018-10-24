@@ -1,0 +1,16 @@
+
+playbook to get my local dev enviroment up and running.
+
+This currently assumes admin permissions are availabe. Will, install python, 
+postgres, postgis, neovim general tools 
+
+Basic Use
+---------
+
+pip3 install ansible --user
+ansible-galaxy install -r requirements.yml
+ansible-playbook -i ./hosts --ask-become-pass playbook.yml
+
+
+TODO:
+Ruby and Rails stuff

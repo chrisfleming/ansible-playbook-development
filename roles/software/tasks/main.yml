@@ -1,0 +1,22 @@
+- name: Install git
+  apt:
+    name: git
+- name: Install zsh
+  apt:
+    name: zsh
+- apt_repository:
+    repo: ppa:neovim-ppa/stable
+- apt:
+  name: neovim
+- name: standard packaged
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - curl
+    - traceroute
+    - htop
+    - mosh
+    - python
+    - python3
+    - tmu2x
