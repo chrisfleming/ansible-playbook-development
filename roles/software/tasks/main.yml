@@ -19,4 +19,5 @@
     - mosh
     - python
     - python3
-    - tmu2x
+    - python3-pip
+    - tmux
