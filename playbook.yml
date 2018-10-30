@@ -8,6 +8,7 @@
   roles:
     - software
     - geerlingguy.postgresql
+    - ansible-role-postgis
 
 - hosts: 127.0.0.1
   connection: local
