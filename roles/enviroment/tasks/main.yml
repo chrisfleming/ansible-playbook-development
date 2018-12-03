@@ -19,6 +19,7 @@
 - git:
     repo: git@github.com:chrisfleming/my-enviroment.git
     dest: $HOME/projects/my-enviroment
+    accept_hostkey: yes
 - name: Setup enviroment
   command: $HOME/projects/my-enviroment/bin/setup_links.sh
 - file:
