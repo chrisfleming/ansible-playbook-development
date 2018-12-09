@@ -6,9 +6,9 @@
     name: zsh
 - apt_repository:
     repo: ppa:neovim-ppa/stable
-  when: ansible_distribution == 'Ubuntu' and (ansible_distribution_release == 'bionic' or ansible_distribution_release == 'xenial') 
+  when: ansible_distribution == 'Ubuntu' and not (ansible_distribution_release == 'bionic' or ansible_distribution_release == 'xenial') 
 - apt:
-  name: neovim
+    name: neovim
 - name: standard packaged
   apt:
     name: "{{ packages }}"
@@ -22,4 +22,6 @@
     - python3
     - python3-pip
     - python3-psycopg2
+    - python3-venv
     - tmux
+

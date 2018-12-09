@@ -1,0 +1,26 @@
+---
+
+- name: install fontconfg
+  become: True
+  package:
+    state: present
+    name: "{{ item }}"
+  with_items:
+    - fontconfig
+
+- name: download powerline fonts
+  git:
+    repo: 'https://github.com/powerline/fonts.git'
+    dest: /tmp/powerline-fonts
+
+- name: create local fonts directory
+  file:
+    dest: "~/.local/share/fonts"
+    state: directory
+
+- name: copy fonts
+  command: cp -r /tmp/powerline-fonts/{{ item }} ~/.local/share/fonts/
+  with_items: "{{ all_fonts }}"
+
+- name: reset font cache
+  command: fc-cache -f ~/.local/share/fonts

@@ -1,0 +1,24 @@
+---
+- name: check for short-circuit
+  raw: "> /dev/null command -v dropbox;"
+  register: installed
+  ignore_errors: True
+  changed_when: False
+
+- name: set should_run fact
+  set_fact:
+    should_run: "{{installed|failed or not dropbox_should_shortcircuit}}"
+
+- name: Install a .deb package from the internet.
+  apt:
+    deb: "{{dropbox_url_ubuntu_deb}}"
+  when: should_run
+  become: yes
+
+- name: Install python dependencies
+  apt:
+    name: python-gtk2
+  become: yes
+
+- name: Start dropox and install daemon
+  command: /usr/bin/dropbox start -i

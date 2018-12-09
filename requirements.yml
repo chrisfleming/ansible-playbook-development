@@ -1,2 +1,2 @@
-- src: geerlingguy.postgresql
+- src: https://github.com/geerlingguy/ansible-role-postgresql.git
 - src: https://github.com/chrisfleming/ansible-role-postgis

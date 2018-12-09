@@ -1,0 +1,8 @@
+# see the list of fonts at https://github.com/powerline/fonts
+# the names must match the directory names for each font
+all_fonts:
+  - RobotoMono
+  - SourceCodePro
+  - DejaVuSansMono
+  - UbuntuMono
+  - SourceCodePro
