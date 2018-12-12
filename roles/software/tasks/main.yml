@@ -1,19 +1,19 @@
-- name: Install git
-  apt:
-    name: git
-- name: Install zsh
-  apt:
-    name: zsh
 - apt_repository:
     repo: ppa:neovim-ppa/stable
   when: ansible_distribution == 'Ubuntu' and not (ansible_distribution_release == 'bionic' or ansible_distribution_release == 'xenial') 
-- apt:
-    name: neovim
-- name: standard packaged
+- apt_repository:
+    repo: ppa:rael-gc/rvm
+  when: ansible_distribution == 'Ubuntu'
+
+- name: standard packages
   apt:
     name: "{{ packages }}"
+    update_cache: yes
+    cache_valid_time: 3600
   vars:
     packages:
+    - git
+    - zsh
     - curl
     - traceroute
     - htop
@@ -24,4 +24,15 @@
     - python3-psycopg2
     - python3-venv
     - tmux
+    - ruby
+    - ruby-dev
+    - ruby-bundler
+    - rvm
+    - neovim
+
+- name: neovim gem
+  command: gem install neovim
+- apt_repository:
+    repo: ppa:rael-gc/rvm
+
 
