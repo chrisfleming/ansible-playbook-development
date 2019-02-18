@@ -1,0 +1,3 @@
+text/html; html2text %s; copiousoutput
+application/msword; catdoc -s cp1252 %s; copiousoutput
+application/octet-stream; o %s

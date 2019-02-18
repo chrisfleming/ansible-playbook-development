@@ -14,3 +14,22 @@ ansible-playbook -i ./hosts --ask-become-pass playbook.yml
 
 TODO:
 Ruby and Rails stuff
+
+
+For email:
+
+
+Manual Steps.
+
+Login to keybase:
+
+keybase login
+
+Import gpg key:
+keybase pgp export | gpg --import
+
+gpg -k
+
+gpg --edit-key Your-Key-ID-Here
+gpg> passwd
+gpg> save

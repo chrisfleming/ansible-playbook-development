@@ -28,8 +28,8 @@
     repo: git@github.com:chrisfleming/my-enviroment.git
     dest: $HOME/projects/my-enviroment
     accept_hostkey: yes
-#- name: Setup enviroment
-#  command: $HOME/projects/my-enviroment/bin/setup_links.sh
+- name: Setup enviroment
+  command: $HOME/projects/my-enviroment/bin/setup_links.sh
 - file:
     path: $HOME/.oh-my-zsh
     mode: "g-w,o-w"
@@ -42,6 +42,9 @@
 
 - name: tmux plugins
   command: ~/.tmux/plugins/tpm/bin/install_plugins
+
+- name: hatch config
+  command: hatch config -u
 
 - name: list virtualenvs
   shell: hatch env -ll | grep - | cut -d " " -f1

@@ -1,6 +1,8 @@
+# neovim-ppa only available on Bionic or Xenial
 - apt_repository:
     repo: ppa:neovim-ppa/stable
-  when: ansible_distribution == 'Ubuntu' and not (ansible_distribution_release == 'bionic' or ansible_distribution_release == 'xenial') 
+  when: ansible_distribution == 'Ubuntu' and (ansible_distribution_release == 'bionic' or ansible_distribution_release == 'xenial')
+
 - apt_repository:
     repo: ppa:rael-gc/rvm
   when: ansible_distribution == 'Ubuntu'
@@ -32,7 +34,3 @@
 
 - name: neovim gem
   command: gem install neovim
-- apt_repository:
-    repo: ppa:rael-gc/rvm
-
-

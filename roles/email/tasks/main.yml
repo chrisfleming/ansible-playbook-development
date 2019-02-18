@@ -1,0 +1,48 @@
+- name: email packages
+  apt:
+    name: "{{ packages }}"
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+  vars:
+    packages:
+    - neomutt
+    - pass
+    - gpg
+    - catdoc
+    - html2text
+
+- copy:
+    src: mailcap
+    dest: ~/.mailcap
+
+- git:
+    repo: git@github.com:chrisfleming/pass.git
+    dest: ~/.passwordstore
+    update: no
+
+- name: Install keybase
+  become: yes
+  apt:
+    deb: https://prerelease.keybase.io/keybase_amd64.deb
+
+- command: keybase ctl init
+
+- name: Keybase Service
+  systemd:
+    state: started
+    name: keybase.service
+    scope: user
+
+- name: Keybase Service
+  systemd:
+    state: started
+    name: kbfs.service
+    scope: user
+
+- name: Keybase Service
+  systemd:
+    state: started
+    name: keybase-redirector.service
+    scope: user
+

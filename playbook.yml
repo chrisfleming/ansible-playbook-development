@@ -7,14 +7,43 @@
     - vars/postgres.yml
   roles:
     - software
-#    - ansible-role-postgresql
-#    - ansible-role-postgis
+  tags: ['basic']
+
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  vars_files:
+    - vars/postgres.yml
+  roles:
+    - enviroment
+  tags: ['basic']
+
+
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  vars_files:
+    - vars/postgres.yml
+  roles:
+    - ansible-role-postgresql
+    - ansible-role-postgis
+  tags: 'postgis'
+
 
 - hosts: 127.0.0.1
   connection: local
   vars_files:
     - vars/postgres.yml
   roles:
-    - enviroment
-      #    - fonts
-      #- dropbox
+    - fonts
+    - dropbox
+  tags: 'gui'
+
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - vars/postgres.yml
+  roles:
+    - email
+  tags: 'email'
+
