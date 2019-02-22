@@ -10,15 +10,51 @@
     - pass
     - gpg
     - catdoc
-    - html2text
+#    - html2text
+    - pandoc
+    - msmtp
 
 - copy:
     src: mailcap
     dest: ~/.mailcap
 
+- file:
+    path: ~/.mutt/scripts/
+    state: directory
+
+- copy:
+    src: filter_email.py
+    dest: ~/.mutt/scripts/filter_email.py
+    mode: 0500
+
+- copy:
+    src: sendmail
+    dest: ~/.mutt/scripts/sendmail
+    mode: 0500
+
+
+- copy:
+    src: MIMEmbellish
+    dest: ~/.mutt/scripts/MIMEmbellish
+    mode: 0500
+
+- file:
+    path: ~/.pandoc/templates/
+    state: directory
+
+- copy:
+    src: email.html
+    dest: ~/.pandoc/templates/email.html
+
+
+- pip:
+    executable: pip3
+    name: beautifulsoup4
+    extra_args: --user
+
 - git:
     repo: git@github.com:chrisfleming/pass.git
-    dest: ~/.passwordstore
+    dest: ~/.password-store
     update: no
 
 - name: Install keybase
