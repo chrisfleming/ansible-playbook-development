@@ -38,6 +38,10 @@
     dest: ~/.mutt/scripts/MIMEmbellish
     mode: 0500
 
+- template:
+    src: msmtprc
+    dest: ~/.msmtprc
+
 - file:
     path: ~/.pandoc/templates/
     state: directory
@@ -51,6 +55,12 @@
     executable: pip3
     name: beautifulsoup4
     extra_args: --user
+
+- pip:
+    executable: pip3
+    name: lxml
+    extra_args: --user
+
 
 - git:
     repo: git@github.com:chrisfleming/pass.git

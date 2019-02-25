@@ -5,12 +5,18 @@ import fileinput
 import sys
 import argparse
 import re
+import io
 
 #parser = argparse.ArgumentParser(description='Prefilter HTML')
 #parser.add_argument('htmlfile', required=False)
 #args = parser.parse_args()
 html = ""
-for line in fileinput.input():
+
+encoding = 'utf-8'
+encoding = sys.argv[1]
+
+input_stream = io.TextIOWrapper(sys.stdin.buffer, encoding=encoding)
+for line in input_stream:
     html += line
 
 html.replace('<o:p>', '')
@@ -45,5 +51,5 @@ for match in soup.find_all('a'):
     if not href:
         match.unwrap()
 
-print soup()
+print(soup.prettify(formatter="html"))
 
