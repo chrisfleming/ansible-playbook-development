@@ -20,7 +20,7 @@ from os.path import basename, splitext, expanduser
 charset.add_charset('utf-8', charset.SHORTEST, '8bit')
 
 
-def pandoc(from_format, to_format='markdown', plain='markdown', title=None):
+def pandoc(from_format, to_format='markdown', plain='plain', title=None):
     markdown = ('markdown'
                 '-blank_before_blockquote')
 
@@ -29,8 +29,7 @@ def pandoc(from_format, to_format='markdown', plain='markdown', title=None):
     f.close()
 
     if from_format == 'plain':
-#        from_format = plain
-        from_format = markdown
+        from_format = plain
     if from_format == 'markdown':
         from_format = markdown
     if to_format == 'markdown':
@@ -65,7 +64,8 @@ def make_alternative(message, part):
 
 
 def make_replacement(message, part):
-    return convert(part, 'plain', pandoc(part.get_content_subtype()))
+    #print("*** make_replacement " + part.get_content_subtype())
+    return convert(part, 'plain', pandoc(part.get_content_subtype(), "plain"))
 
 
 def convert(part, to_subtype, command):
@@ -84,14 +84,18 @@ def convert(part, to_subtype, command):
 
 def with_alternative(parent, part, from_signed,
                      make_alternative=make_alternative,
-                     make_replacement=None):
+                     make_replacement=make_replacement):
     try:
+        # print("Make Alternative")
         alternative = make_alternative(parent or part, from_signed or part)
+        #print("Make Replacement")
         replacement = (make_replacement(parent or part, part)
                        if from_signed is None and make_replacement is not None
                        else part)
     except:
         return parent or part
+
+    # print("Envelope")
     envelope = MIMEMultipart('alternative')
     if parent is None:
         for k, v in part.items():
