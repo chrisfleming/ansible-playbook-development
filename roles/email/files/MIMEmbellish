@@ -15,7 +15,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.nonmultipart import MIMENonMultipart
 from os.path import basename, splitext, expanduser
-
+from premailer import transform
 
 charset.add_charset('utf-8', charset.SHORTEST, '8bit')
 
@@ -43,6 +43,9 @@ def pandoc(from_format, to_format='markdown', plain='plain', title=None):
                 expanduser('~/.pandoc/templates/email.html'))
     return command.format(from_format, to_format)
 
+def outlookify(payload):
+    # Load payload into soup and add formatting.
+    return transform(payload)
 
 def gmailfy(payload):
     return payload.replace('<blockquote>',
@@ -59,7 +62,7 @@ def make_alternative(message, part):
                           pandoc(part.get_content_subtype(),
                                  to_format='html',
                                  title=message.get('Subject')))
-    alternative.set_payload(gmailfy(alternative.get_payload()))
+    alternative.set_payload(outlookify(gmailfy(alternative.get_payload())))
     return alternative
 
 
