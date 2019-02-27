@@ -49,15 +49,18 @@ for match in soup.find_all('span', {"style" : True}):
     if not len(match['style']):
         match.unwrap()
         continue
+    # print(match)
 
     for style in match['style'].split(';'):
-        #print(style)
-        #try:
+        if not len(style):
+            continue
+        #print("    style: " + style)
+        # try:
         key, value = style.split(':')
         # except:
-        #    key = ""
-        #    value = ""
-        #    print("  BROKEN: %s" % (match))
+        #   key = ""
+        #  value = ""
+        #   print("  BROKEN: %s" % (match))
 
         if key == "font-family":
             fonts = value.split(',')
