@@ -11,7 +11,6 @@
 
 - hosts: 127.0.0.1
   connection: local
-  become: yes
   vars_files:
     - vars/postgres.yml
   roles:
@@ -46,4 +45,13 @@
   roles:
     - email
   tags: 'email'
+
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - vars/postgres.yml
+  roles:
+    - todoist-cli
+  tags: ['todoist']
+
 

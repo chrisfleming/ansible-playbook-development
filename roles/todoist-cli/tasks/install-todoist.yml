@@ -1,0 +1,13 @@
+- git:
+    repo: 'https://github.com/sachaos/todoist.git'
+    dest: ~/projects/todoist
+
+- name: Build todoist
+  shell: make install
+  args:
+    chdir: ~/projects/todoist
+
+- unarchive:
+    src: https://github.com/peco/peco/releases/download/v0.5.3/peco_linux_amd64.tar.gz
+    remote_src: yes
+    dest: ~/bin/
