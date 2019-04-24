@@ -1,5 +1,9 @@
 #text/html; ~/.mutt/scripts/filter_email.py %{charset} | pandoc -f html -t markdown --columns=180 --reference-links; copiousoutput
+text/html; ~/.mutt/scripts/filter_email.py %{charset} | pandoc -f html -t markdown  --wrap=none --reference-links --columns=${COLUMNS:-80}; copiousoutput
+text/html; ~/.mutt/scripts/filter_email.py %{charset} | pandoc -f html -t markdown  --wrap=none --reference-links; copiousoutput
 text/html; ~/.mutt/scripts/filter_email.py %{charset} | pandoc -f html -t markdown --reference-links; copiousoutput
+text/*; less '%s'; needsterminal
+text/*; view %s; edit=vim %s; compose=vim %s; test=test -x /usr/bin/vim; needsterminal
 application/msword; catdoc -s cp1252 %s; copiousoutput
 application/pdf; evince %s
 application/octet-stream; o %s

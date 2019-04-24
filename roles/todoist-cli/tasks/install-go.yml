@@ -1,0 +1,13 @@
+
+- apt_repository:
+    repo: ppa:longsleep/golang-backports
+
+- name: standard packages
+  apt:
+    name: "{{ packages }}"
+    update_cache: yes
+    cache_valid_time: 3600
+  vars:
+    packages:
+    - golang-go
+  become: yes
