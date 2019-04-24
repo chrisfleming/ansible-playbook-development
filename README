@@ -7,9 +7,13 @@ postgres, postgis, neovim general tools
 Basic Use
 ---------
 
+eval `ssh-agent`
+ssh-add
+export PATH=~/.local/bin:$PATH
 pip3 install ansible --user
 ansible-galaxy install -r requirements.yml
-ansible-playbook -i ./hosts --ask-become-pass playbook.yml
+ansible-playbook -i ./hosts --ask-become-pass playbook.yml --tags=base,email
+
 
 
 TODO:
