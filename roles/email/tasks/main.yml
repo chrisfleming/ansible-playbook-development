@@ -61,6 +61,10 @@
     name: lxml
     extra_args: --user
 
+- pip:
+    executable: premailer
+    name: lxml
+    extra_args: --user
 
 - git:
     repo: git@github.com:chrisfleming/pass.git
