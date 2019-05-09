@@ -12,7 +12,7 @@ ssh-add
 export PATH=~/.local/bin:$PATH
 pip3 install ansible --user
 ansible-galaxy install -r requirements.yml
-ansible-playbook -i ./hosts --ask-become-pass playbook.yml --tags=base,email
+ansible-playbook -i ./hosts --ask-become-pass playbook.yml --tags=basic,email --ask-vault-pass -v
 
 
 

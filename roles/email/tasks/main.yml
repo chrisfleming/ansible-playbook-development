@@ -62,8 +62,8 @@
     extra_args: --user
 
 - pip:
-    executable: premailer
-    name: lxml
+    executable: pip3
+    name: urlscan
     extra_args: --user
 
 - git:
