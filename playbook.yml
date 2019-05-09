@@ -13,6 +13,7 @@
   connection: local
   vars_files:
     - vars/postgres.yml
+    - vars/vault.yml
   roles:
     - enviroment
   tags: ['basic']

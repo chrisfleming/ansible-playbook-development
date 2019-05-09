@@ -61,6 +61,10 @@
     name: lxml
     extra_args: --user
 
+- pip:
+    executable: pip3
+    name: urlscan
+    extra_args: --user
 
 - git:
     repo: git@github.com:chrisfleming/pass.git
