@@ -16,6 +16,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.nonmultipart import MIMENonMultipart
 from os.path import basename, splitext, expanduser
 from premailer import transform
+from bs4 import BeautifulSoup
 
 charset.add_charset('utf-8', charset.SHORTEST, '8bit')
 
@@ -45,7 +46,23 @@ def pandoc(from_format, to_format='markdown', plain='plain', title=None):
 
 def outlookify(payload):
     # Load payload into soup and add formatting.
-    return transform(payload)
+    #payload = transform(payload)
+
+    soup = BeautifulSoup(payload, "lxml")
+    for tag in soup.find_all('ul'):
+        tag['type'] = "disc"
+        print(tag)
+        
+
+    #print("Before")
+    #print(payload)
+
+    #print("Aftaer")
+    #print(str(soup))
+
+    return str(soup)
+    #return payload
+
 
 def gmailfy(payload):
     return payload.replace('<blockquote>',

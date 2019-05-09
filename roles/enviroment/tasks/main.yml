@@ -51,11 +51,14 @@
 #'  shell: ~/.virtualenvs/neovim3/bin/pip3 install wheel
 #- name: neovim module
 #  shell: ~/.virtualenvs/neovim3/bin/pip3 install neovim
-- git:
+#
+- name: dircolors-solarized
+  git:
     repo: https://github.com/seebi/dircolors-solarized.git
     dest: ~/src/dircolors-solarized/
 
-- git:
+- name: my-enviroment
+  git:
     repo: git@github.com:chrisfleming/my-enviroment.git
     dest: $HOME/projects/my-enviroment
     accept_hostkey: yes
