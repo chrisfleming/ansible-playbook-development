@@ -8,6 +8,15 @@
     name: hatch
     extra_args: --user
 
+- pip:
+    executable: pip3
+    name: ntfy
+    extra_args: --user
+- template:
+    src: ntfy.yml
+    dest: ~/.ntfy.yml
+
+
 # Requested needed by pushbullet
 - pip:
     executable: pip3

@@ -1,0 +1,2 @@
+backends: ["pushover"]
+pushover: {"user_key": "{{ pushover_api_token }}"}
