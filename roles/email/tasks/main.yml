@@ -74,21 +74,21 @@
 
 - command: keybase ctl init
 
-- name: Keybase Service
-  systemd:
-    state: started
-    name: keybase.service
-    scope: user
+  #- name: Keybase Service
+  #systemd:
+  #  state: started
+  #  name: keybase.service
+  #  scope: user
 
-- name: Keybase Service
-  systemd:
-    state: started
-    name: kbfs.service
-    scope: user
+  #- name: Keybase Service
+  #systemd:
+  #  state: started
+  #  name: kbfs.service
+  #  scope: user
 
-- name: Keybase Service
-  systemd:
-    state: started
-    name: keybase-redirector.service
-    scope: user
+  #- name: Keybase Service
+  #systemd:
+  #  state: started
+  #  name: keybase-redirector.service
+  #  scope: user
 

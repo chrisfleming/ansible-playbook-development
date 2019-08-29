@@ -6,10 +6,28 @@ import sys
 import argparse
 import re
 import io
+#from subprocess import Popen, PIPE
+from subprocess import check_output
+import os
 
 #parser = argparse.ArgumentParser(description='Prefilter HTML')
 #parser.add_argument('htmlfile', required=False)
 #args = parser.parse_args()
+
+# text/html; ~/.mutt/scripts/filter_email.py %{charset} | pandoc -f html -t markdown  --wrap=none --reference-links --columns=${COLUMNS:-80}; copiousoutput
+# text/html; ~/.mutt/scripts/filter_email.py %{charset} | html2text --reference-links --mark-code -b ${COLUMNS:-80} --unicode-snob; copiousoutput
+
+try:
+    columns = os.environ['COLUMNS']
+except:
+    columns = "80"
+
+#default_conversion = "pandoc -f html -t markdown  --wrap=none --reference-links --columns=%s"
+default_conversion = ["pandoc", "-f", "html", "-t", "markdown", "--wrap=none", "--reference-links", "--columns=%s" % columns]
+medium_conversion = "html2text --reference-links --mark-code -b %s --unicode-snob" % columns
+simple_conversion = ["elinks", "-dump"]
+
+
 html = ""
 
 encoding = 'utf-8'
@@ -55,12 +73,12 @@ for match in soup.find_all('span', {"style" : True}):
         if not len(style):
             continue
         #print("    style: " + style)
-        # try:
-        key, value = style.split(':')
-        # except:
-        #   key = ""
-        #  value = ""
-        #   print("  BROKEN: %s" % (match))
+        try:
+            key, value = style.split(':')
+        except:
+           key = ""
+           value = ""
+           print("  BROKEN: %s" % (match))
 
         if key == "font-family":
             fonts = value.split(',')
@@ -69,7 +87,7 @@ for match in soup.find_all('span', {"style" : True}):
             fonts = [x.strip() for x in fonts]
             #print("    %s" % fonts)
 
-            fixed_fonts = ["courier new", "consolas"]
+            fixed_fonts = ["courier new", "consolas" "monospace"]
 
             if any_in(fixed_fonts, fonts):
                 #print("HAVE CODE")
@@ -91,17 +109,6 @@ for match in soup.find_all('span', {"style" : True}):
     match['style'] = ";".join(remaining_style)
 
 
-
-
-
-
-
-            
-
-
-
-
-
 for match in soup.find_all('span', attrs={"style": "mso-fareast-language:EN-US"}):
     match.unwrap()
 
@@ -115,6 +122,10 @@ for match in soup.find_all('span', attrs={"style": ""}):
 for match in soup.find_all('div', attrs={"class": "WordSection1"}):
     match.unwrap()
 
+for match in soup.find_all('div', attrs=None):
+    if len(match.attrs) == 0:
+        match.unwrap()
+
 for match in soup.find_all('a'):
     href = True
     try:
@@ -125,5 +136,18 @@ for match in soup.find_all('a'):
     if not href:
         match.unwrap()
 
-print(soup.prettify(formatter="html"))
+# Which converter to use. Confluence is horrible...
+convert = default_conversion
 
+if soup.select('img#footer-pattern-logo-desktop'):
+    convert = simple_conversion
+    print(convert)
+
+
+#print(soup.prettify(formatter="html"))
+#process = Popen(default_conversion, stdout=PIPE, stdin=PIPE, stderr=PIPE)
+#out, err = process.communicate(input=soup.prettify(formatter="html").encode())
+out = check_output(convert,
+                   input=soup.prettify(formatter="html"),
+                   encoding='utf-8')
+print(out)
