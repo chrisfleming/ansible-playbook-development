@@ -73,12 +73,12 @@ for match in soup.find_all('span', {"style" : True}):
         if not len(style):
             continue
         #print("    style: " + style)
-        # try:
-        key, value = style.split(':')
-        # except:
-        #   key = ""
-        #  value = ""
-        #   print("  BROKEN: %s" % (match))
+        try:
+            key, value = style.split(':')
+        except:
+           key = ""
+           value = ""
+           print("  BROKEN: %s" % (match))
 
         if key == "font-family":
             fonts = value.split(',')
@@ -121,6 +121,10 @@ for match in soup.find_all('span', attrs={"style": ""}):
 #<div class="WordSection1">
 for match in soup.find_all('div', attrs={"class": "WordSection1"}):
     match.unwrap()
+
+for match in soup.find_all('div', attrs=None):
+    if len(match.attrs) == 0:
+        match.unwrap()
 
 for match in soup.find_all('a'):
     href = True
