@@ -139,6 +139,12 @@ if soup.select('img#footer-pattern-logo-desktop'):
     convert = simple_conversion
     print(convert)
 
+for table in soup.find_all('table'):
+    for subtable in table.find_all('table'):
+        # Use simple conversion - 
+
+        convert = simple_conversion
+#        print("Nested - simple conversion")
 
 #print(soup.prettify(formatter="html"))
 #process = Popen(default_conversion, stdout=PIPE, stdin=PIPE, stderr=PIPE)
