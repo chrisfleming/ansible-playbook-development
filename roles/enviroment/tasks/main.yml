@@ -7,6 +7,43 @@
     executable: pip3
     name: hatch
     extra_args: --user
+
+- pip:
+    executable: pip3
+    name: ntfy
+    extra_args: --user
+- template:
+    src: ntfy.yml
+    dest: ~/.ntfy.yml
+
+
+# Requested needed by pushbullet
+- pip:
+    executable: pip3
+    name: requests
+    extra_args: --user
+
+- git:
+    repo: https://github.com/jchonig/pushbullet.git
+    dest: ~/src/pushbullet/
+
+- file:
+    path: ~/bin
+    state: directory
+
+- copy:
+    src: pushbullet
+    dest: ~/bin/pushbullet
+    mode: 0500
+
+- lineinfile:
+    path: ~/.netrc
+    regexp: '^machine pushbullet\.com'
+    create: yes
+    line: 'machine pushbullet.com login {{ pushbullet_user }} password {{ pushbullet_api_token }}'
+    mode: 0600
+
+
 # Possibly an ordering issue here, also don't think I need these...
 # - pip:
 #    executable: pip3
@@ -23,11 +60,14 @@
 #'  shell: ~/.virtualenvs/neovim3/bin/pip3 install wheel
 #- name: neovim module
 #  shell: ~/.virtualenvs/neovim3/bin/pip3 install neovim
-- git:
+#
+- name: dircolors-solarized
+  git:
     repo: https://github.com/seebi/dircolors-solarized.git
     dest: ~/src/dircolors-solarized/
 
-- git:
+- name: my-enviroment
+  git:
     repo: git@github.com:chrisfleming/my-enviroment.git
     dest: $HOME/projects/my-enviroment
     accept_hostkey: yes
