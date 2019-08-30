@@ -18,6 +18,12 @@
     - enviroment
   tags: ['basic']
 
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  roles:
+    - nodejs
+  tags: ['node']
 
 - hosts: 127.0.0.1
   connection: local
