@@ -14,6 +14,11 @@
     - pandoc
     - msmtp
 
+- git:
+    repo: git@github.com:chrisfleming/pass.git
+    dest: ~/.password-store
+    update: no
+
 - copy:
     src: mailcap
     dest: ~/.mailcap
@@ -66,17 +71,17 @@
     name: urlscan
     extra_args: --user
 
-- git:
-    repo: git@github.com:chrisfleming/pass.git
-    dest: ~/.password-store
-    update: no
+- pip:
+    executable: pip3
+    name: premailer
+    extra_args: --user
 
-- name: Install keybase
-  become: yes
-  apt:
-    deb: https://prerelease.keybase.io/keybase_amd64.deb
+    #- name: Install keybase
+    #  become: yes
+    #apt:
+    #deb: https://prerelease.keybase.io/keybase_amd64.deb
 
-- command: keybase ctl init
+    #- command: keybase ctl init
 
   #- name: Keybase Service
   #systemd:

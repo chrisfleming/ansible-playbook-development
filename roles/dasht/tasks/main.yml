@@ -1,0 +1,46 @@
+- name: dasht
+  git:
+    repo: https://github.com/sunaku/dasht.git
+    dest: ~/.dasht
+    depth: 1
+
+
+- name: set permissions
+  file:
+    path: "{{ item }}"
+    mode: 0755
+  loop:
+    - ~/.dasht/etc/zsh/completions/
+    - ~/.dasht/etc/zsh
+
+
+- name: standard packages
+  become: yes
+  apt:
+    name: "{{ packages }}"
+    update_cache: yes
+    cache_valid_time: 3600
+  vars:
+    packages:
+    - socat
+    - w3m
+    - gawk
+    - wget
+
+
+- name: dasht documentation
+  command: dasht-docsets-install -f  "{{ item }}"
+  args:
+    chdir: ~/.dasht/bin/
+  loop:
+    - bash
+    - python2
+    - python3
+    - nginx
+    - apache
+    - vim
+    - postgresql
+    - html
+    - docker
+    - ansible
+
