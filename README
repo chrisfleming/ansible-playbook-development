@@ -4,13 +4,21 @@ playbook to get my local dev enviroment up and running.
 This currently assumes admin permissions are availabe. Will, install python, 
 postgres, postgis, neovim general tools 
 
+Ansible Setup
+-------------
+
+sudo apt-get install python3.10-minimal python3.10-venv
+python3.10 -m venv ~/.venv/ansible
+. ~/.venv/ansible/bin/activate
+
+
 Basic Use
 ---------
 
 eval `ssh-agent`
 ssh-add
-export PATH=~/.local/bin:$PATH
-pip3 install ansible --user
+# export PATH=~/.local/bin:$PATH
+pip install ansible
 ansible-galaxy install -r requirements.yml
 ansible-playbook -i ./hosts --ask-become-pass playbook.yml --tags=basic,email --ask-vault-pass -v
 
