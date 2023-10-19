@@ -1,5 +1,5 @@
 - name: Check is node installed
-  shell: command -v node >/dev/null 2>&1
+  shell: 'source ~/.nvm/nvm.sh && command -v node >/dev/null 2>&1'
   register: is_node_exist
   ignore_errors: yes
 
@@ -12,17 +12,18 @@
     path: ~/.config/coc/extensions/package.json
   register: package_exists
 
-- name: Create package.json
-  ansible.builtin.lineinfile:
-    path: ~/.config/coc/extensions/package.json
-    line: {"dependencies":{}}
-    create: yes
-  when: package_exists.stat.exists == False
+    #- name: Create package.json
+    #ansible.builtin.lineinfile:
+    #path: ~/.config/coc/extensions/package.json
+    #line: '{"dependencies":{}}'
+    #create: yes
+    #when: package_exists.stat.exists == False
 
 - name:
-  ansible.builtin.command:
+  ansible.builtin.shell: 
+    cmd: "source ~/.nvm/nvm.sh && npm install {{ item }} --global-style --ignore-scripts --no-bin-links --no-package-lock --only=prod"
     chdir: ~/.config/coc/extensions/
-    cmd: "npm install {{ item }} --global-style --ignore-scripts --no-bin-links --no-package-lock --only=prod"
+    executable: /bin/bash
   loop:
     - coc-calc
     - coc-yaml

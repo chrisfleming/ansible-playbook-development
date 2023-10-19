@@ -13,6 +13,14 @@
   connection: local
   vars_files:
     - vars/postgres.yml
+  roles:
+    - software-local
+  tags: ['basic-localonly']
+
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - vars/postgres.yml
     - vars/vault.yml
   roles:
     - enviroment
@@ -20,9 +28,9 @@
 
 - hosts: 127.0.0.1
   connection: local
-  become: yes
+#become: yes
   roles:
-    - nodejs
+    - nvm
   tags: ['node']
 
 - hosts: 127.0.0.1
@@ -58,6 +66,15 @@
   roles:
     - email
   tags: ['email']
+
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - vars/postgres.yml
+    - vars/go.yml
+  roles:
+    - ansible-role-golang
+  tags: ['todoist', 'go']
 
 - hosts: 127.0.0.1
   connection: local
