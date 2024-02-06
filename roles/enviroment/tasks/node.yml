@@ -1,0 +1,9 @@
+- name: Install node plugin
+  ansible.builtin.command: ~/.asdf/bin/asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+
+# Using 16.20.2 - as this is the latest supported in CentOS7
+- name: Install node
+  ansible.builtin.command: sh -c "ASDF_DIR=~/.asdf . ~/.asdf/asdf.sh; asdf install nodejs 16.20.2"
+
+- name: Set default
+  ansible.builtin.command: ~/.asdf/bin/asdf global nodejs 16.20.2

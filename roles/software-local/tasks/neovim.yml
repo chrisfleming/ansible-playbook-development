@@ -1,0 +1,49 @@
+---
+
+- name: install| scrape URL for latest version
+  uri:
+    url: https://api.github.com/repos/neovim/neovim/releases/latest
+    return_content: true
+  register: latest
+
+- name: install| split it out
+  set_fact:
+    latest_version: "{{ latest.json.tag_name | regex_replace('v') }}"
+
+- name: install| check if ~/.usr/local/AppImage/neovim/VERSION exists
+  stat:
+    path: ~/.usr/local/AppImage/neovim/VERSION
+  register: VERSION_file
+
+- name: install| when there is no VERSION or it's contents don't match, do these
+  block:
+    - name: install| delete previous version [{{ user.username }}]
+      file:
+        name: "{{ item }}"
+        state: absent
+      with_items:
+        -  ~/.usr/local/AppImage/neovim/*.appImage
+
+    - name: install| creates the folder where the binary will be stored
+      file:
+        name: ~/.usr/local/AppImage/neovim/
+        state: directory
+
+    - name: install| download the latest version
+      get_url:
+        url: https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
+        dest: ~/.usr/local/AppImage/neovim/nvim.appimage
+        mode: 0755
+
+    - name: Extract appimge
+      ansible.builtin.shell: ./nvim.appimage --appimage-extract
+      args:
+        chdir: ~/.usr/local/AppImage/neovim/
+
+    - name: Link
+      ansible.builtin.file:
+        src: ~/.usr/local/AppImage/neovim/squashfs-root/usr/bin/nvim
+        dest: ~/bin/nvim
+        state: link
+
+
