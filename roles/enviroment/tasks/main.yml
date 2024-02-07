@@ -17,6 +17,11 @@
     virtualenv: ~/.venv/system/
     virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
+- name: Home bin directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/bin/"
+    state: directory
+
 - name: Put hatch in the path
   ansible.builtin.file:
     src: "{{ ansible_facts.env.HOME }}/.venv/system/bin/hatch"

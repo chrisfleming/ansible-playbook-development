@@ -41,6 +41,13 @@
     - ansible-role-postgis
   tags: ['postgis']
 
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - vars/postgres.yml
+  roles:
+    - osm
+  tags: ['osm']
 
 - hosts: 127.0.0.1
   connection: local
@@ -48,8 +55,7 @@
     - vars/postgres.yml
   roles:
     - fonts
-    - dropbox
-  tags: ['gui']
+  tags: ['fonts']
 
 - hosts: 127.0.0.1
   connection: local
