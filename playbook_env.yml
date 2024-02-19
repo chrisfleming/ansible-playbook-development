@@ -1,0 +1,16 @@
+---
+
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - vars/postgres.yml
+    - vars/vault.yml
+  roles:
+    - enviroment
+  tags: ['basic', 'enviroment']
+
+- hosts: 127.0.0.1
+  connection: local
+  roles:
+    - nvim-coc
+  tags: ['coc']
