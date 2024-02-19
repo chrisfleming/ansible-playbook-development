@@ -31,6 +31,5 @@
     - coc-git
     - coc-html
     - coc-json
-    - bash-language-server
     - coc-pyright
     - coc-snippets
