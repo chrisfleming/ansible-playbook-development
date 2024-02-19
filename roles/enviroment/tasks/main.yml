@@ -1,8 +1,27 @@
 - name: oh my zsh
-  git:
+  ansible.builtin.git:
     repo: https://github.com/robbyrussell/oh-my-zsh
     dest: ~/.oh-my-zsh
     depth: 1
+
+- name: asdf version
+  uri:
+    url: https://api.github.com/repos/asdf-vm/asdf/releases/latest
+    return_content: true
+  register: asdf_latest
+
+- name: asdf version
+  set_fact:
+    asdf_latest_version: "{{ asdf_latest.json.tag_name }}"
+
+- name: asdf install
+  ansible.builtin.git:
+    repo: https://github.com/asdf-vm/asdf.git
+    dest: ~/.asdf
+    depth: 1
+    version: "{{ asdf_latest_version }}"
+
+- import_tasks: node.yml
 
 - name: Upgrade pip3 to the latest
   pip:

@@ -20,6 +20,15 @@
 
 - hosts: 127.0.0.1
   connection: local
+  become: no
+  vars_files:
+    - vars/postgres.yml
+  roles:
+    - software-local
+  tags: ['local']
+
+- hosts: 127.0.0.1
+  connection: local
   become: yes
   roles:
     - nodejs

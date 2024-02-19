@@ -1,0 +1,12 @@
+- name: Install NVM
+  shell: 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash'
+  args:
+    creates: "{{ ansible_env.HOME }}/.nvm/"
+    executable: /bin/bash
+
+- name: Install Node.js
+  shell: '. {{ ansible_env.HOME }}/.nvm/nvm.sh && nvm install node'
+  args:
+    creates: "{{ ansible_env.HOME }}/.nvm/versions/node"
+    chdir: "{{ ansible_env.HOME }}"
+    executable: /bin/bash

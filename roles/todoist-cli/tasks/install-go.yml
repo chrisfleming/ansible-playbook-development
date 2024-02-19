@@ -1,6 +1,13 @@
 
+- name: Add GPG key for neovim-ppa
+  shell: curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x52B59B1571A79DBC054901C0F6BC817356A3D45E" | apt-key add
+  become: yes
+  when: "'Microsoft' in ansible_kernel"
+
 - apt_repository:
     repo: ppa:longsleep/golang-backports
+  become: yes
+    
 
 - name: standard packages
   apt:
