@@ -4,3 +4,7 @@
   import_tasks: mcfly.yml
 - name: Install ripgrep
   import_tasks: roles/software-local/tasks/ripgrep.yml
+- name: Install fdfind
+  import_tasks: fdfind.yml
+- name: Install Lazygit
+  import_tasks: lazygit.yml

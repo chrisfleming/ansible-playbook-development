@@ -1,0 +1,42 @@
+---
+
+- name: install| scrape URL for latest version
+  uri:
+    url: https://api.github.com/repos/sharkdp/fd/releases/latest
+    return_content: true
+  register: latest
+
+- name: install| split it out
+  set_fact:
+    latest_version: "{{ latest.json.tag_name | regex_replace('v') }}"
+
+- name: install| is it already installed
+  stat:
+    path: ~/bin/fd
+  register: file_data
+
+- name: install| get version
+  ansible.builtin.shell: ~/bin/fd -V | cut -d " " -f 2
+  register: VERSION
+  when: file_data.stat.exists
+
+- name: install| when there is no VERSION or it's contents don't match, do these
+  block:
+    - name: install| download the latest version
+      get_url:
+        # https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-v9.0.0-x86_64-unknown-linux-musl.tar.gz
+        url: "https://github.com/sharkdp/fd/releases/download/v{{ latest_version }}/fd-v{{ latest_version}}-x86_64-unknown-linux-musl.tar.gz"
+        dest: /tmp/fd.tar.gz
+        mode: 0755
+
+    - name: Extract binary
+      unarchive:
+        src:  /tmp/fd.tar.gz
+        dest: ~/bin/
+        include: fd-v{{ latest_version }}-x86_64-unknown-linux-musl/fd
+        extra_opts: ['--strip-components=1']
+
+
+  when: (not file_data.stat.exists) or (VERSION != latest_version)
+
+

@@ -9,9 +9,3 @@
     - software-local
     #    - enviroment
   tags: ['basic', 'enviroment']
-
-- hosts: 127.0.0.1
-  connection: local
-  roles:
-    - nvim-coc
-  tags: ['coc']
