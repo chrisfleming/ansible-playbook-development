@@ -6,7 +6,8 @@
     - vars/postgres.yml
     - vars/vault.yml
   roles:
-    - enviroment
+    - software-local
+    #    - enviroment
   tags: ['basic', 'enviroment']
 
 - hosts: 127.0.0.1

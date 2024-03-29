@@ -1,3 +1,6 @@
 ---
 #- import_tasks: neovim.yml
-- import_tasks: mcfly.yml
+- name: Install Local McFly
+  import_tasks: mcfly.yml
+- name: Install ripgrep
+  import_tasks: roles/software-local/tasks/ripgrep.yml
