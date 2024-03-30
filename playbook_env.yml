@@ -6,6 +6,6 @@
     - vars/postgres.yml
     - vars/vault.yml
   roles:
+    - enviroment
     - software-local
-    #    - enviroment
   tags: ['basic', 'enviroment']

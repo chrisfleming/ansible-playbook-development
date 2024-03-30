@@ -1,10 +1,29 @@
 ---
-#- import_tasks: neovim.yml
+- name: "Install homebrew packages"
+  community.general.homebrew:
+    name: [
+      'fzf',
+      'neovim',
+      'asdf',
+      'mcfly',
+      'fd'
+    ]
+    state: present
+    update_homebrew: yes
+  when: ansible_distribution == 'MacOSX'
+
+- name: Install Neovim
+  import_tasks: neovim.yml 
+  when: ansible_distribution != 'MacOSX'
 - name: Install Local McFly
   import_tasks: mcfly.yml
+  when: ansible_distribution == 'MacOSX'
 - name: Install ripgrep
   import_tasks: roles/software-local/tasks/ripgrep.yml
+  when: ansible_distribution == 'MacOSX'
 - name: Install fdfind
   import_tasks: fdfind.yml
+  when: ansible_distribution == 'MacOSX'
 - name: Install Lazygit
   import_tasks: lazygit.yml
+  when: ansible_distribution == 'MacOSX'
