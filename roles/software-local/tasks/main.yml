@@ -17,13 +17,13 @@
   when: ansible_distribution != 'MacOSX'
 - name: Install Local McFly
   import_tasks: mcfly.yml
-  when: ansible_distribution == 'MacOSX'
+  when: ansible_distribution != 'MacOSX'
 - name: Install ripgrep
   import_tasks: roles/software-local/tasks/ripgrep.yml
-  when: ansible_distribution == 'MacOSX'
+  when: ansible_distribution != 'MacOSX'
 - name: Install fdfind
   import_tasks: fdfind.yml
-  when: ansible_distribution == 'MacOSX'
+  when: ansible_distribution != 'MacOSX'
 - name: Install Lazygit
   import_tasks: lazygit.yml
-  when: ansible_distribution == 'MacOSX'
+  when: ansible_distribution != 'MacOSX'
