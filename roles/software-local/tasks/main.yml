@@ -6,24 +6,31 @@
       'neovim',
       'asdf',
       'mcfly',
-      'fd'
+      'fd',
+      'zoxide'
     ]
     state: present
     update_homebrew: yes
   when: ansible_distribution == 'MacOSX'
 
 - name: Install Neovim
-  import_tasks: neovim.yml 
+  import_tasks: neovim.yml
   when: ansible_distribution != 'MacOSX'
 - name: Install Local McFly
   import_tasks: mcfly.yml
-  when: ansible_distribution == 'MacOSX'
+  when: ansible_distribution != 'MacOSX'
 - name: Install ripgrep
-  import_tasks: roles/software-local/tasks/ripgrep.yml
-  when: ansible_distribution == 'MacOSX'
+  import_tasks: ripgrep.yml
+  when: ansible_distribution != 'MacOSX'
 - name: Install fdfind
   import_tasks: fdfind.yml
-  when: ansible_distribution == 'MacOSX'
+  when: ansible_distribution != 'MacOSX'
 - name: Install Lazygit
   import_tasks: lazygit.yml
-  when: ansible_distribution == 'MacOSX'
+  when: ansible_distribution != 'MacOSX'
+- name: Install Zoxide
+  import_tasks: zoxide.yml
+  when: ansible_distribution != 'MacOSX'
+- name: Install fzf
+  import_tasks: fzf.yml
+  when: ansible_distribution != 'MacOSX'
