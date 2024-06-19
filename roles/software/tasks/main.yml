@@ -7,29 +7,29 @@
   become: yes
   when: "'Microsoft' in ansible_kernel and ansible_distribution_release == 'bionic'"
 
-- name: Add GPG key for rael-gc/rvc
-  shell: curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x8094BB14F4E3FBBE" | apt-key add
-  become: yes
-  when: "'Microsoft' in ansible_kernel and ansible_distribution_release == 'bionic'"
+#- name: Add GPG key for rael-gc/rvc
+#shell: curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x8094BB14F4E3FBBE" | apt-key add
+#  become: yes
+#  when: "'Microsoft' in ansible_kernel and ansible_distribution_release == 'bionic'"
 
-- apt_repository:
-    repo: "deb http://ppa.launchpad.net/rael-gc/rvm/ubuntu {{ansible_distribution_release}} main"
-    state: present
-  when: "ansible_distribution == 'Ubuntu' and 'Microsoft' in ansible_kernel"
+    #- apt_repository:
+    #repo: "deb http://ppa.launchpad.net/rael-gc/rvm/ubuntu {{ansible_distribution_release}} main"
+    #state: present
+    #when: "ansible_distribution == 'Ubuntu' and 'Microsoft' in ansible_kernel"
 
-- apt_repository:
-    repo: "deb http://ppa.launchpad.net/neovim-ppa/stable/ubuntu {{ansible_distribution_release}} main "
-    state: present
-  when: "ansible_distribution == 'Ubuntu' and 'Microsoft' in ansible_kernel"
+    #- apt_repository:
+    #repo: "deb http://ppa.launchpad.net/neovim-ppa/stable/ubuntu {{ansible_distribution_release}} main "
+    #state: present
+    #when: "ansible_distribution == 'Ubuntu' and 'Microsoft' in ansible_kernel"
 
 # Non WSL
-- apt_repository:
-    repo: ppa:rael-gc/rvm
-  when: "ansible_distribution == 'Ubuntu' and 'Microsoft' not in ansible_kernel"
+#- apt_repository:
+#    repo: ppa:rael-gc/rvm
+#  when: "ansible_distribution == 'Ubuntu' and 'Microsoft' not in ansible_kernel"
 
-- apt_repository:
-    repo: ppa:neovim-ppa/stable
-  when: "'Microsoft' not in ansible_kernel and ansible_distribution == 'Ubuntu' and (ansible_distribution_release == 'bionic' or ansible_distribution_release == 'xenial')"
+    #- apt_repository:
+    #repo: ppa:neovim-ppa/stable
+    #when: "'Microsoft' not in ansible_kernel and ansible_distribution == 'Ubuntu' and (ansible_distribution_release == 'bionic' or ansible_distribution_release == 'xenial')"
 
 
 - name: standard packages
@@ -50,11 +50,11 @@
     - python3-psycopg2
     - python3-venv
     - tmux
-    - ruby
-    - ruby-dev
-    - ruby-bundler
-    - rvm
+      #- ruby
+      #- ruby-dev
+      #- ruby-bundler
+      #   - rvm
     - neovim
 
-- name: neovim gem
-  command: gem install neovim
+      #- name: neovim gem
+      #command: gem install neovim
