@@ -107,6 +107,20 @@
     dest: "{{ ansible_facts.env.HOME }}/bin/black"
     state: link
 
+## tmuxp
+- pip:
+    name: tmuxp
+    state: latest
+    virtualenv: ~/.venv/system/
+    virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
+
+- name: Put black in the path
+  ansible.builtin.file:
+    src: "{{ ansible_facts.env.HOME }}/.venv/system/bin/tmuxp"
+    dest: "{{ ansible_facts.env.HOME }}/bin/tmuxp"
+    state: link
+
+
 
 
 - name: dircolors-solarized
@@ -135,10 +149,10 @@
   command: ~/.tmux/plugins/tpm/bin/install_plugins
 
 # Lets stick with just python3 for now!
-- pip:
-    name: pynvim
-    state: latest
-    virtualenv: ~/.venv/neovim3/
-    virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
+#- pip:
+#    name: pynvim
+#    state: latest
+#    virtualenv: ~/.venv/neovim3/
+#    virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
 
