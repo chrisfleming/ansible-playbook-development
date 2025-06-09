@@ -1,5 +1,4 @@
 ---
-
 - name: install| scrape URL for latest version
   uri:
     url: https://api.github.com/repos/neovim/neovim/releases/latest
@@ -22,18 +21,32 @@
         name: "{{ item }}"
         state: absent
       with_items:
-        -  ~/.usr/local/AppImage/neovim/*.appImage
+        - ~/.usr/local/AppImage/neovim/*.appImage
 
     - name: install| creates the folder where the binary will be stored
       file:
         name: ~/.usr/local/AppImage/neovim/
         state: directory
+    - name: Get version of glibc
+      ansible.builtin.shell: ldd --version | awk '/ldd/ {print $NF}'
+      register: glibc_version
 
-    - name: install| download the latest version
+    - debug:
+        var: glibc_version
+
+    - name: install| download the latest version for glibc > 2.31
       get_url:
-        url: https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
+        url: https://github.com/neovim/neovim/releases/download/v{{latest_version}}/nvim-linux-x86_64.appimage
         dest: ~/.usr/local/AppImage/neovim/nvim.appimage
         mode: 0755
+      when: (glibc_version["stdout"] | float) > 2.31
+
+    - name: install| download the latest version glibc< 2.32
+      get_url:
+        url: https://github.com/neovim/neovim-releases/releases/download/v{{latest_version}}/nvim-linux-x86_64.appimage
+        dest: ~/.usr/local/AppImage/neovim/nvim.appimage
+        mode: 0755
+      when: (glibc_version["stdout"] | float) < 2.32
 
     - name: Extract appimge
       ansible.builtin.shell: ./nvim.appimage --appimage-extract
@@ -45,5 +58,3 @@
         src: ~/.usr/local/AppImage/neovim/squashfs-root/usr/bin/nvim
         dest: ~/bin/nvim
         state: link
-
-
