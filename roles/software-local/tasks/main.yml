@@ -1,14 +1,7 @@
 ---
 - name: "Install homebrew packages"
   community.general.homebrew:
-    name: [
-      'fzf',
-      'neovim',
-      'asdf',
-      'mcfly',
-      'fd',
-      'zoxide'
-    ]
+    name: ["fzf", "neovim", "asdf", "mcfly", "fd", "zoxide", "yazi"]
     state: present
     update_homebrew: yes
   when: ansible_distribution == 'MacOSX'
@@ -33,4 +26,7 @@
   when: ansible_distribution != 'MacOSX'
 - name: Install fzf
   import_tasks: fzf.yml
+  when: ansible_distribution != 'MacOSX'
+- name: Install yazi
+  import_tasks: yazi.yml
   when: ansible_distribution != 'MacOSX'

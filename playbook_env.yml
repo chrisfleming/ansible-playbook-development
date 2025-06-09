@@ -1,5 +1,4 @@
 ---
-
 - hosts: 127.0.0.1
   connection: local
   vars_files:
@@ -8,4 +7,4 @@
   roles:
     - enviroment
     - software-local
-  tags: ['basic', 'enviroment']
+  tags: ["basic", "enviroment"]
