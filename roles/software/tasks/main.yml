@@ -48,6 +48,7 @@
     cache_valid_time: 3600
   vars:
     packages:
+      - fish
       - git
       - zsh
       - curl
@@ -59,12 +60,13 @@
       - python3-psycopg2
       - python3-venv
       - tmux
-      - fish
-        #- ruby
-        #- ruby-dev
-        #- ruby-bundler
-        #   - rvm
-      - neovim
+      #- ruby
+      #- ruby-dev
+      #- ruby-bundler
+      #   - rvm
+      #
+      #   Disabled installing neovim via package ubuntu versions are too old 
+      # - neovim
 
         #- name: neovim gem
         #command: gem install neovim
