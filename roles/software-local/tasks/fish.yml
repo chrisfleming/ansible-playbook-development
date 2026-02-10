@@ -1,0 +1,36 @@
+---
+
+- name: fish install| scrape URL for latest version
+  uri:
+    url: https://api.github.com/repos/fish-shell/fish-shell/releases/latest
+    return_content: true
+  register: latest
+
+- name: fish install| split it out
+  set_fact:
+    latest_version: "{{ latest.json.tag_name }}"
+
+- name: fish install| is it already installed
+  stat:
+    path: ~/bin/fish
+  register: file_data
+
+- name: fish install| get version
+  ansible.builtin.shell: ~/bin/fish --version | cut -d " " -f 3
+  register: VERSION
+  when: file_data.stat.exists
+
+- name: fish install| when there is no VERSION or it's contents don't match, do these
+  block:
+    - name: fish install| download the latest version
+      get_url:
+        url: "https://github.com/fish-shell/fish-shell/releases/download/{{ latest_version }}/fish-{{ latest_version }}-linux-x86_64.tar.xz"
+        dest: /tmp/fish.tar.xz
+        mode: 0755
+
+    - name: fish install| extract binary
+      unarchive:
+        src: /tmp/fish.tar.xz
+        dest: ~/bin/
+
+  when: (not file_data.stat.exists) or (VERSION != latest_version)

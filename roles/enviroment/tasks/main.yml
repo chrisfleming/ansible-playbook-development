@@ -15,8 +15,16 @@
   set_fact:
     asdf_latest_version: "{{ asdf_latest.json.tag_name }}"
 
-- name: asdf install
+- name: "Install ASDF homebrew MAC "
+  community.general.homebrew:
+    name: ["asdf"]
+    state: present
+    update_homebrew: true
+  when: ansible_distribution == 'MacOSX'
+
+- name: Install ASDF linux
   import_tasks: asdf.yml
+  when: ansible_distribution != 'MacOSX'
 
 - name: node install (via asdf)
   import_tasks: node.yml
@@ -24,7 +32,7 @@
 - name: Upgrade pip3 to the latest
   pip:
     name: pip
-    state: latest  # noqa package-latest
+    state: latest # noqa package-latest
     virtualenv: ~/.venv/system/
     virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
@@ -85,12 +93,12 @@
     path: ~/.netrc
     regexp: '^machine pushbullet\.com'
     create: yes
-    line: 'machine pushbullet.com login {{ pushbullet_user }} password {{ pushbullet_api_token }}'
+    line: "machine pushbullet.com login {{ pushbullet_user }} password {{ pushbullet_api_token }}"
     mode: 0600
 
 - lineinfile:
     path: ~/bin/pushbullet
-    regex: '^#!'
+    regex: "^#!"
     line: "#!{{ ansible_facts.env.HOME }}/.venv/system/bin/python"
 
 - pip:
@@ -118,9 +126,6 @@
     dest: "{{ ansible_facts.env.HOME }}/bin/tmuxp"
     state: link
 
-
-
-
 - name: dircolors-solarized
   git:
     repo: https://github.com/seebi/dircolors-solarized.git
@@ -142,15 +147,12 @@
     mode: "g-w,o-w"
     recurse: yes
 
-
 - name: tmux plugins
   command: ~/.tmux/plugins/tpm/bin/install_plugins
-
 # Lets stick with just python3 for now!
 #- pip:
 #    name: pynvim
 #    state: latest
 #    virtualenv: ~/.venv/neovim3/
 #    virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
-
 

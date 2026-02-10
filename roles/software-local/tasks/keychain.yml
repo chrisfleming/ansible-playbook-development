@@ -1,0 +1,31 @@
+---
+
+- name: keychain install| scrape URL for latest version
+  uri:
+    url: https://api.github.com/repos/funtoo/keychain/releases/latest
+    return_content: true
+  register: latest
+
+- name: keychain install| split it out
+  set_fact:
+    latest_version: "{{ latest.json.tag_name }}"
+
+- name: keychain install| is it already installed
+  stat:
+    path: ~/bin/keychain
+  register: file_data
+
+- name: keychain install| get version
+  ansible.builtin.shell: ~/bin/keychain -V 2>&1 | head -1 | grep -oP '[\d.]+'
+  register: VERSION
+  when: file_data.stat.exists
+
+- name: keychain install| when there is no VERSION or it's contents don't match, do these
+  block:
+    - name: keychain install| download the latest version
+      get_url:
+        url: "https://github.com/funtoo/keychain/releases/download/{{ latest_version }}/keychain"
+        dest: ~/bin/keychain
+        mode: 0755
+
+  when: (not file_data.stat.exists) or (VERSION != latest_version)

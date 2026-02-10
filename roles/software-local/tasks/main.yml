@@ -1,7 +1,19 @@
 ---
 - name: "Install homebrew packages"
   community.general.homebrew:
-    name: ["fzf", "neovim", "asdf", "mcfly", "fd", "zoxide", "yazi"]
+    name:
+      [
+        "fzf",
+        "neovim",
+        "asdf",
+        "mcfly",
+        "fd",
+        "zoxide",
+        "yazi",
+        "fish",
+        "keychain",
+        "starship",
+      ]
     state: present
     update_homebrew: yes
   when: ansible_distribution == 'MacOSX'
@@ -29,4 +41,13 @@
   when: ansible_distribution != 'MacOSX'
 - name: Install yazi
   import_tasks: yazi.yml
+  when: ansible_distribution != 'MacOSX'
+- name: Install fish
+  import_tasks: fish.yml
+  when: ansible_distribution != 'MacOSX'
+- name: Install keychain
+  import_tasks: keychain.yml
+  when: ansible_distribution != 'MacOSX'
+- name: Install starship
+  import_tasks: starship.yml
   when: ansible_distribution != 'MacOSX'
