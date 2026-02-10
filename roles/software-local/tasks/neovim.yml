@@ -1,20 +1,33 @@
 ---
-- name: install| scrape URL for latest version
+- name: Get version of glibc
+  ansible.builtin.shell: ldd --version | awk '/ldd/ {print $NF}'
+  register: glibc_version
+
+- name: install nvim| latest version for glibc > 2.31
   uri:
     url: https://api.github.com/repos/neovim/neovim/releases/latest
     return_content: true
   register: latest
+  when: (glibc_version["stdout"] | float) > 2.31
 
-- name: install| split it out
+- name: install nvim| latest version for glibc< 2.32
+  uri:
+    url: https://api.github.com/repos/neovim/neovim-releases/releases/latest
+    return_content: true
+  register: latest
+  when: (glibc_version["stdout"] | float) < 2.32
+
+- name: install nvim| split it out
   set_fact:
-    latest_version: "{{ latest.json.tag_name | regex_replace('v') }}"
+    latest_version: "{{ latest.json.tag_name }}"
 
-- name: install| check if ~/.usr/local/AppImage/neovim/VERSION exists
-  stat:
-    path: ~/.usr/local/AppImage/neovim/VERSION
-  register: VERSION_file
+- name: Check if nvim exists and get version
+  shell: nvim --version | grep NVIM | cut -d " " -f2
+  register: nvim_version
+  failed_when: false
+  changed_when: false
 
-- name: install| when there is no VERSION or it's contents don't match, do these
+- name: install nvim| when there is no VERSION or it's contents don't match, do these
   block:
     - name: install| delete previous version [{{ user.username }}]
       file:
@@ -27,23 +40,19 @@
       file:
         name: ~/.usr/local/AppImage/neovim/
         state: directory
-    - name: Get version of glibc
-      ansible.builtin.shell: ldd --version | awk '/ldd/ {print $NF}'
-      register: glibc_version
-
     - debug:
         var: glibc_version
 
     - name: install| download the latest version for glibc > 2.31
       get_url:
-        url: https://github.com/neovim/neovim/releases/download/v{{latest_version}}/nvim-linux-x86_64.appimage
+        url: https://github.com/neovim/neovim/releases/download/{{latest_version}}/nvim-linux-x86_64.appimage
         dest: ~/.usr/local/AppImage/neovim/nvim.appimage
         mode: 0755
       when: (glibc_version["stdout"] | float) > 2.31
 
     - name: install| download the latest version glibc< 2.32
       get_url:
-        url: https://github.com/neovim/neovim-releases/releases/download/v{{latest_version}}/nvim-linux-x86_64.appimage
+        url: https://github.com/neovim/neovim-releases/releases/download/{{latest_version}}/nvim-linux-x86_64.appimage
         dest: ~/.usr/local/AppImage/neovim/nvim.appimage
         mode: 0755
       when: (glibc_version["stdout"] | float) < 2.32
@@ -58,3 +67,4 @@
         src: ~/.usr/local/AppImage/neovim/squashfs-root/usr/bin/nvim
         dest: ~/bin/nvim
         state: link
+  when: nvim_version.rc != 0 or nvim_version.stdout != latest_version

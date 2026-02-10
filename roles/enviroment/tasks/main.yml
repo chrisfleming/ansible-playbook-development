@@ -87,7 +87,7 @@
 - copy:
     src: ~/src/pushbullet/pushbullet
     dest: ~/bin/pushbullet
-    mode: 0500
+    mode: 0700
 
 - lineinfile:
     path: ~/.netrc
