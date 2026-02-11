@@ -42,9 +42,16 @@
 - name: Install yazi
   import_tasks: yazi.yml
   when: ansible_distribution != 'MacOSX'
+
+## We're only going to install a fish shell if it's not present
+- name: install fish| is there a system fish
+  stat:
+    path: /usr/bin/fish
+  register: fish_stat
+
 - name: Install fish
   import_tasks: fish.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_distribution != 'MacOSX' and not fish_stat.stat.exists
 - name: Install keychain
   import_tasks: keychain.yml
   when: ansible_distribution != 'MacOSX'

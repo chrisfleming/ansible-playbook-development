@@ -46,7 +46,6 @@
     - vars/postgres.yml
   roles:
     - ansible-role-postgresql
-    - ansible-role-postgis
   tags: ["postgis"]
 
 #- hosts: 127.0.0.1

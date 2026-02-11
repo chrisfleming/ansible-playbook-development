@@ -29,6 +29,18 @@
 #repo: ppa:neovim-ppa/stable
 #when: "'Microsoft' not in ansible_kernel and ansible_distribution == 'Ubuntu' and (ansible_distribution_release == 'bionic' or ansible_distribution_release == 'xenial')"
 
+# Fish - using ppa to get an up to date version:
+- name: Add fish repository from PPA
+  ansible.builtin.deb822_repository:
+    name: fish-shell
+    types: [deb]
+    uris: "https://ppa.launchpadcontent.net/fish-shell/release-4/ubuntu"
+    suites: "{{ ansible_distribution_release }}"
+    components: main
+    signed_by: "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x88421E703EDC7AF54967DED473C9FCC9E2BB48DA"
+    state: present
+    enabled: true
+
 - name: standard packages
   apt:
     name: "{{ packages }}"
@@ -47,6 +59,7 @@
       - python3-psycopg2
       - python3-venv
       - tmux
+      - fish
         #- ruby
         #- ruby-dev
         #- ruby-bundler
@@ -56,12 +69,3 @@
         #- name: neovim gem
         #command: gem install neovim
         #
-
-# Fish - using ppa to get an up to date version:
-- name: Add fish repository from PPA
-  ansible.builtin.apt_repository:
-    repo: ppa:fish-shell/release-4
-
-- name: Fish Shell Install
-  apt:
-    name: fish
