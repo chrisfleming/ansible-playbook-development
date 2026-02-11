@@ -51,3 +51,9 @@
 - name: Install starship
   import_tasks: starship.yml
   when: ansible_distribution != 'MacOSX'
+
+- name: Intall cargo/rust
+  import_tasks: cargo.yml
+
+- name: Tree Sitter Cli
+  import_tasks: tree-sitter-cli.yml

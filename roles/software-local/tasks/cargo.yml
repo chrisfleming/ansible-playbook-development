@@ -1,0 +1,19 @@
+---
+- name: install cargo| confirm if cargo is installed
+  stat:
+    path: ~/.cargo/bin/cargp
+  register: cargo_exists
+  ignore_errors: true
+  changed_when: false
+
+- name: install cargo| Download installer
+  when: not cargo_exists.stat.exists
+  get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/cfleming_rs
+    mode: "0700"
+    force: "yes"
+
+- name: install cargp| run installer
+  when: not cargo_exists.stat.exists
+  shell: /tmp/cfleming_rs -y
