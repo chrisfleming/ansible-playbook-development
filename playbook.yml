@@ -62,14 +62,6 @@
   vars_files:
     - vars/postgres.yml
   roles:
-    - fonts
-  tags: ["fonts"]
-
-- hosts: 127.0.0.1
-  connection: local
-  vars_files:
-    - vars/postgres.yml
-  roles:
     - email
   tags: ["email"]
 

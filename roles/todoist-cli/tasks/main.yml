@@ -1,4 +1,4 @@
 - name: Install GO
-  include: install-go.yml
+  include_tasks: install-go.yml
 - name: Install TODOish
-  include: install-todoist.yml
+  include_tasks: install-todoist.yml

@@ -1,28 +1,27 @@
 ---
-
-- name: install| scrape URL for latest version
+- name: Install| scrape URL for latest version
   uri:
     url: https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest
     return_content: true
   register: latest
 
-- name: install| split it out
+- name: Install| split it out
   set_fact:
     latest_version: "{{ latest.json.tag_name | regex_replace('v') }}"
 
-- name: install| is it already installed
+- name: Install| is it already installed
   stat:
     path: ~/bin/zoxide
   register: file_data
 
-- name: install| get version
+- name: Install| get version
   ansible.builtin.shell: ~/bin/zoxide -V | cut -d " " -f 2
   register: VERSION
   when: file_data.stat.exists
 
-- name: install| when there is no VERSION or it's contents don't match, do these
+- name: Install| when there is no VERSION or it's contents don't match, do these
   block:
-    - name: install| download the latest version
+    - name: Install| download the latest version
       get_url:
         url: "https://github.com/ajeetdsouza/zoxide/releases/download/v{{ latest_version }}/zoxide-{{ latest_version}}-x86_64-unknown-linux-musl.tar.gz"
         dest: /tmp/zoxide.tar.gz
@@ -30,15 +29,17 @@
 
     - name: Extract binary
       unarchive:
-        src:  /tmp/zoxide.tar.gz
-        dest:  ~/bin/
+        src: /tmp/zoxide.tar.gz
+        dest: ~/bin/
 
   when: (not file_data.stat.exists) or (VERSION != latest_version)
+
+- name: Do we have an old autojump file?
+  stat:
+    path: $HOME/.local/share/autojump/autojump.txt
+  register: autojump_data
 
 - name: On first install import autojump data
   ansible.builtin.command:
     cmd: ~/bin/zoxide import --from=autojump "$HOME/.local/share/autojump/autojump.txt"
-  when: (not file_data.stat.exists)
-
-
-
+  when: (not file_data.stat.exists) and autojump_data.stat.exists
