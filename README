@@ -1,8 +1,8 @@
 
 playbook to get my local dev enviroment up and running.
 
-This currently assumes admin permissions are availabe. Will, install python, 
-postgres, postgis, neovim general tools 
+This currently assumes admin permissions are availabe. Will, install python,
+postgres, postgis, neovim general tools
 
 Ansible Setup
 -------------
@@ -22,6 +22,27 @@ pip install ansible
 ansible-galaxy install -r requirements.yml
 ansible-playbook -i ./hosts --ask-become-pass playbook.yml --tags=basic,email --ask-vault-pass -v
 
+
+
+GitHub Version Caching
+----------------------
+
+The software-local role fetches latest release versions from the GitHub API for
+tools like ripgrep, fzf, neovim, etc. To avoid repeated API calls (and GitHub's
+60 requests/hour rate limit for unauthenticated requests), versions are cached
+in ~/.cache/ansible-versions/ for 24 hours.
+
+On the first run, each tool queries GitHub and writes the version to a cache
+file. Subsequent runs within 24 hours read from cache instead. After 24 hours
+the cache is considered stale and GitHub is queried again.
+
+To force a fresh lookup for a specific tool:
+
+    rm ~/.cache/ansible-versions/ripgrep
+
+To clear all cached versions:
+
+    rm -rf ~/.cache/ansible-versions/
 
 
 TODO:

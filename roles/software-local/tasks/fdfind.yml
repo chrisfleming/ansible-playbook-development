@@ -1,14 +1,9 @@
 ---
-
-- name: install| scrape URL for latest version
-  uri:
-    url: https://api.github.com/repos/sharkdp/fd/releases/latest
-    return_content: true
-  register: latest
-
-- name: install| split it out
-  set_fact:
-    latest_version: "{{ latest.json.tag_name | regex_replace('v') }}"
+- name: install| get latest version
+  include_tasks: fetch_latest_version.yml
+  vars:
+    package_name: fdfind
+    github_repo: sharkdp/fd
 
 - name: install| is it already installed
   stat:
@@ -31,12 +26,9 @@
 
     - name: Extract binary
       unarchive:
-        src:  /tmp/fd.tar.gz
+        src: /tmp/fd.tar.gz
         dest: ~/bin/
         include: fd-v{{ latest_version }}-x86_64-unknown-linux-musl/fd
-        extra_opts: ['--strip-components=1']
-
+        extra_opts: ["--strip-components=1"]
 
   when: (not file_data.stat.exists) or (VERSION != latest_version)
-
-

@@ -1,14 +1,9 @@
 ---
-
-- name: install| scrape URL for latest version
-  uri:
-    url: https://api.github.com/repos/cantino/mcfly/releases/latest
-    return_content: true
-  register: latest
-
-- name: install| split it out
-  set_fact:
-    latest_version: "{{ latest.json.tag_name | regex_replace('v') }}"
+- name: install| get latest version
+  include_tasks: fetch_latest_version.yml
+  vars:
+    package_name: mcfly
+    github_repo: cantino/mcfly
 
 - name: install| is it already installed
   stat:
@@ -30,9 +25,7 @@
 
     - name: Extract binary
       unarchive:
-        src:  /tmp/mcfly.tar.gz
-        dest:  ~/bin/
+        src: /tmp/mcfly.tar.gz
+        dest: ~/bin/
 
   when: (not file_data.stat.exists) or (VERSION != latest_version)
-
-

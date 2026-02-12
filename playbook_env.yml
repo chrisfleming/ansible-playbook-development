@@ -6,5 +6,5 @@
     - vars/vault.yml
   roles:
     - enviroment
-    - software-local
+    #- software-local
   tags: ["basic", "enviroment"]

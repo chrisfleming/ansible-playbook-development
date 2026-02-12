@@ -1,13 +1,9 @@
 ---
-- name: asdf install| scrape URL for latest version
-  uri:
-    url: https://api.github.com/repos/asdf-vm/asdf/releases/latest
-    return_content: true
-  register: latest
-
-- name: asdf install| split it out
-  set_fact:
-    latest_version: "{{ latest.json.tag_name | regex_replace('v') }}"
+- name: asdf install| get latest version
+  include_tasks: fetch_latest_version.yml
+  vars:
+    package_name: asdf
+    github_repo: asdf-vm/asdf
 
 - name: asdf install| is it already installed
   stat:
@@ -43,7 +39,6 @@
     path: ~/.asdf/asdf.sh
   register: old_file_data
 
-
 - name: asdf install | Remove old version
   block:
     - name: asdf install | regenerate shims
@@ -52,5 +47,3 @@
     - name: asdf install | remove old files
       ansible.builtin.shell: find $HOME/.asdf/ -maxdepth 1 -mindepth 1 -not -name downloads -not -name plugins -not -name installs -not -name shims -exec rm -r {} \;
   when: (old_file_data.stat.exists)
-
-

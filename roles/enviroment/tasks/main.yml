@@ -1,158 +1,169 @@
-- name: oh my zsh
+- name: oh-my-zsh| clone repository
   ansible.builtin.git:
     repo: https://github.com/robbyrussell/oh-my-zsh
     dest: ~/.oh-my-zsh
     depth: 1
     version: master
 
-- name: asdf version
-  uri:
-    url: https://api.github.com/repos/asdf-vm/asdf/releases/latest
-    return_content: true
-  register: asdf_latest
-
-- name: asdf version
-  set_fact:
-    asdf_latest_version: "{{ asdf_latest.json.tag_name }}"
-
-- name: "Install ASDF homebrew MAC "
+- name: asdf| install via homebrew (macOS)
   community.general.homebrew:
     name: ["asdf"]
     state: present
     update_homebrew: true
   when: ansible_distribution == 'MacOSX'
 
-- name: Install ASDF linux
+- name: asdf| install (Linux)
   import_tasks: asdf.yml
   when: ansible_distribution != 'MacOSX'
 
-- name: node install (via asdf)
+- name: node| install via asdf
   import_tasks: node.yml
 
-- name: Upgrade pip3 to the latest
+- name: pip| upgrade to latest
   pip:
     name: pip
     state: latest # noqa package-latest
     virtualenv: ~/.venv/system/
     virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
-- pip:
+- name: hatch| install
+  pip:
     name: hatch
     state: latest
     virtualenv: ~/.venv/system/
     virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
-- name: Home bin directory
+- name: bin| ensure ~/bin directory exists
   ansible.builtin.file:
     path: "{{ ansible_facts.env.HOME }}/bin/"
     state: directory
 
-- name: Put hatch in the path
+- name: hatch| symlink into ~/bin
   ansible.builtin.file:
     src: "{{ ansible_facts.env.HOME }}/.venv/system/bin/hatch"
     dest: "{{ ansible_facts.env.HOME }}/bin/hatch"
     state: link
 
-- pip:
+- name: ntfy| install
+  pip:
     name: ntfy
     state: latest
     virtualenv: ~/.venv/system/
     virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
-- template:
+- name: ntfy| configure
+  template:
     src: ntfy.yml
     dest: ~/.ntfy.yml
 
-- name: Put ntfy in the path
+- name: ntfy| symlink into ~/bin
   ansible.builtin.file:
     src: "{{ ansible_facts.env.HOME }}/.venv/system/bin/ntfy"
     dest: "{{ ansible_facts.env.HOME }}/bin/ntfy"
     state: link
 
-# Requested needed by pushbullet
-- pip:
+- name: pushbullet| install requests dependency
+  pip:
     name: requests
     state: latest
     virtualenv: ~/.venv/system/
     virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
-- git:
+- name: pushbullet| clone repository
+  git:
     repo: https://github.com/jchonig/pushbullet.git
     dest: ~/src/pushbullet/
 
-- file:
+- name: pushbullet| ensure ~/bin directory exists
+  file:
     path: ~/bin
     state: directory
 
-- copy:
+- name: pushbullet| check if script exists in ~/bin
+  stat:
+    path: ~/bin/pushbullet
+  register: pushbullet_bin
+
+- name: pushbullet| copy script to ~/bin
+  copy:
     src: ~/src/pushbullet/pushbullet
     dest: ~/bin/pushbullet
     mode: 0700
+  when: not pushbullet_bin.stat.exists
 
-- lineinfile:
+- name: pushbullet| set shebang to venv python
+  lineinfile:
+    path: ~/bin/pushbullet
+    regex: "^#!"
+    line: "#!{{ ansible_facts.env.HOME }}/.venv/system/bin/python"
+  when: not pushbullet_bin.stat.exists
+
+- name: pushbullet| configure credentials in .netrc
+  lineinfile:
     path: ~/.netrc
     regexp: '^machine pushbullet\.com'
     create: yes
     line: "machine pushbullet.com login {{ pushbullet_user }} password {{ pushbullet_api_token }}"
     mode: 0600
 
-- lineinfile:
-    path: ~/bin/pushbullet
-    regex: "^#!"
-    line: "#!{{ ansible_facts.env.HOME }}/.venv/system/bin/python"
-
-- pip:
+- name: black| install
+  pip:
     name: black
     state: latest
     virtualenv: ~/.venv/system/
     virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
-- name: Put black in the path
+- name: black| symlink into ~/bin
   ansible.builtin.file:
     src: "{{ ansible_facts.env.HOME }}/.venv/system/bin/black"
     dest: "{{ ansible_facts.env.HOME }}/bin/black"
     state: link
 
-## tmuxp
-- pip:
+- name: tmuxp| install
+  pip:
     name: tmuxp
     state: latest
     virtualenv: ~/.venv/system/
     virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
-- name: Put black in the path
+- name: tmuxp| symlink into ~/bin
   ansible.builtin.file:
     src: "{{ ansible_facts.env.HOME }}/.venv/system/bin/tmuxp"
     dest: "{{ ansible_facts.env.HOME }}/bin/tmuxp"
     state: link
 
-- name: dircolors-solarized
+- name: dircolors-solarized| clone repository
   git:
     repo: https://github.com/seebi/dircolors-solarized.git
     dest: ~/src/dircolors-solarized/
 
-- name: my-enviroment
+- name: my-enviroment| clone repository
   git:
     repo: git@github.com:chrisfleming/my-enviroment.git
+    version: master
     dest: $HOME/projects/my-enviroment
-    accept_hostkey: yes
-- name: Setup enviroment
+    accept_hostkey: false
+    recursive: no
+  register: enviromentclone
+
+- name: my-enviroment| run setup_links.sh
   command: $HOME/projects/my-enviroment/bin/setup_links.sh
-- file:
+  changed_when: true
+  when: enviromentclone.changed
+
+- name: oh-my-zsh| fix directory permissions
+  file:
     path: $HOME/.oh-my-zsh
     mode: "g-w,o-w"
-    recurse: yes
-- file:
+    recurse: true
+
+- name: my-enviroment| fix zsh custom directory permissions
+  file:
     path: $HOME/projects/my-enviroment/zsh/custom/
     mode: "g-w,o-w"
-    recurse: yes
+    recurse: true
 
-- name: tmux plugins
+- name: tmux| install plugins
   command: ~/.tmux/plugins/tpm/bin/install_plugins
-# Lets stick with just python3 for now!
-#- pip:
-#    name: pynvim
-#    state: latest
-#    virtualenv: ~/.venv/neovim3/
-#    virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
-
+  register: tpm_result
+  changed_when: "'Installing' in tpm_result.stdout"

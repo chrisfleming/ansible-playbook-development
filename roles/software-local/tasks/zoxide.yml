@@ -1,13 +1,9 @@
 ---
-- name: Install| scrape URL for latest version
-  uri:
-    url: https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest
-    return_content: true
-  register: latest
-
-- name: Install| split it out
-  set_fact:
-    latest_version: "{{ latest.json.tag_name | regex_replace('v') }}"
+- name: Install| get latest version
+  include_tasks: fetch_latest_version.yml
+  vars:
+    package_name: zoxide
+    github_repo: ajeetdsouza/zoxide
 
 - name: Install| is it already installed
   stat:

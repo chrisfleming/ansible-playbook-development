@@ -1,14 +1,10 @@
 ---
-
-- name: keychain install| scrape URL for latest version
-  uri:
-    url: https://api.github.com/repos/funtoo/keychain/releases/latest
-    return_content: true
-  register: latest
-
-- name: keychain install| split it out
-  set_fact:
-    latest_version: "{{ latest.json.tag_name }}"
+- name: keychain install| get latest version
+  include_tasks: fetch_latest_version.yml
+  vars:
+    package_name: keychain
+    github_repo: funtoo/keychain
+    strip_v: false
 
 - name: keychain install| is it already installed
   stat:

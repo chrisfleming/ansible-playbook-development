@@ -1,14 +1,9 @@
 ---
-
-- name: fzf install| scrape URL for latest version
-  uri:
-    url: https://api.github.com/repos/junegunn/fzf/releases/latest
-    return_content: true
-  register: latest
-
-- name: fzf install| split it out
-  set_fact:
-    latest_version: "{{ latest.json.tag_name | regex_replace('v') }}"
+- name: fzf install| get latest version
+  include_tasks: fetch_latest_version.yml
+  vars:
+    package_name: fzf
+    github_repo: junegunn/fzf
 
 - name: fzf install| is it already installed
   stat:
@@ -30,7 +25,7 @@
 
     - name: fzf Extract binary
       unarchive:
-        src:  /tmp/fzf.tar.gz
-        dest:  ~/bin/
+        src: /tmp/fzf.tar.gz
+        dest: ~/bin/
 
   when: (not file_data.stat.exists) or (VERSION != latest_version)

@@ -3,23 +3,21 @@
   ansible.builtin.shell: ldd --version | awk '/ldd/ {print $NF}'
   register: glibc_version
 
-- name: install nvim| latest version for glibc > 2.31
-  uri:
-    url: https://api.github.com/repos/neovim/neovim/releases/latest
-    return_content: true
-  register: latest
+- name: install nvim| get latest version (glibc > 2.31)
+  include_tasks: fetch_latest_version.yml
+  vars:
+    package_name: neovim
+    github_repo: neovim/neovim
+    strip_v: false
   when: (glibc_version["stdout"] | float) > 2.31
 
-- name: install nvim| latest version for glibc< 2.32
-  uri:
-    url: https://api.github.com/repos/neovim/neovim-releases/releases/latest
-    return_content: true
-  register: latest
+- name: install nvim| get latest version (glibc < 2.32)
+  include_tasks: fetch_latest_version.yml
+  vars:
+    package_name: neovim
+    github_repo: neovim/neovim-releases
+    strip_v: false
   when: (glibc_version["stdout"] | float) < 2.32
-
-- name: install nvim| split it out
-  set_fact:
-    latest_version: "{{ latest.json.tag_name }}"
 
 - name: Check if nvim exists and get version
   shell: nvim --version | grep NVIM | cut -d " " -f2

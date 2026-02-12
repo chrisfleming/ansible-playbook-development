@@ -1,14 +1,9 @@
 ---
-
-- name: install| scrape URL for latest version
-  uri:
-    url: https://api.github.com/repos/jesseduffield/lazygit/releases/latest
-    return_content: true
-  register: latest
-
-- name: install| split it out
-  set_fact:
-    latest_version: "{{ latest.json.tag_name | regex_replace('v') }}"
+- name: install| get latest version
+  include_tasks: fetch_latest_version.yml
+  vars:
+    package_name: lazygit
+    github_repo: jesseduffield/lazygit
 
 - name: install| is it already installed
   stat:
@@ -31,10 +26,8 @@
 
     - name: Extract binary
       unarchive:
-        src:  /tmp/lazygit.tar.gz
+        src: /tmp/lazygit.tar.gz
         dest: ~/bin/
         include: lazygit
 
   when: (not file_data.stat.exists) or (VERSION != latest_version)
-
-
