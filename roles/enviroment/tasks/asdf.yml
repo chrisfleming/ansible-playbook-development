@@ -1,49 +1,52 @@
 ---
-- name: asdf install| get latest version
+- name: asdf| get latest version
   include_tasks: fetch_latest_version.yml
   vars:
     package_name: asdf
     github_repo: asdf-vm/asdf
 
-- name: asdf install| is it already installed
+- name: asdf| check if installed
   stat:
     path: ~/bin/asdf
   register: file_data
 
-- name: asdf install| get version
-  ansible.builtin.shell: ~/bin/asdf -V | cut -d " " -f 2
+- name: asdf| get installed version
+  ansible.builtin.shell: ~/bin/asdf -v 2>&1 | grep -oP '\d+\.\d+\.\d+'
   register: VERSION
+  changed_when: false
   when: file_data.stat.exists
 
-- name: asdf install| when there is no VERSION or it's contents don't match, do these
+- name: asdf| download and install
   block:
-    - name: asdf install| download the latest version
+    - name: asdf| download latest release
       get_url:
-        url: https://github.com/asdf-vm/asdf/releases/download/v{{latest_version}}/asdf-v0.18.0-linux-amd64.tar.gz
+        url: "https://github.com/asdf-vm/asdf/releases/download/v{{ latest_version }}/asdf-v{{ latest_version }}-linux-amd64.tar.gz"
         dest: /tmp/asdf.tar.gz
         mode: 0755
 
-    - name: asdf Extract binary
+    - name: asdf| extract binary
       unarchive:
         src: /tmp/asdf.tar.gz
         dest: ~/bin/
 
-    - name: asdf | Remove download
+    - name: asdf| remove download
       ansible.builtin.file:
         path: /tmp/asdf.tar.gz
         state: absent
-  when: (not file_data.stat.exists) or (VERSION != latest_version)
+  when: (not file_data.stat.exists) or (VERSION.stdout | default('') != latest_version)
 
-- name: asdf install| Do we have old files
+- name: asdf| check for old files
   stat:
     path: ~/.asdf/asdf.sh
   register: old_file_data
 
-- name: asdf install | Remove old version
+- name: asdf| migrate from old version
   block:
-    - name: asdf install | regenerate shims
+    - name: asdf| regenerate shims
       ansible.builtin.shell: ~/bin/asdf reshim
+      changed_when: true
 
-    - name: asdf install | remove old files
+    - name: asdf| remove old files
       ansible.builtin.shell: find $HOME/.asdf/ -maxdepth 1 -mindepth 1 -not -name downloads -not -name plugins -not -name installs -not -name shims -exec rm -r {} \;
-  when: (old_file_data.stat.exists)
+      changed_when: true
+  when: old_file_data.stat.exists

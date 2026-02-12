@@ -4,6 +4,7 @@
     dest: ~/.oh-my-zsh
     depth: 1
     version: master
+  register: ohmyzsh_clone
 
 - name: asdf| install via homebrew (macOS)
   community.general.homebrew:
@@ -156,6 +157,7 @@
     path: $HOME/.oh-my-zsh
     mode: "g-w,o-w"
     recurse: true
+  when: ohmyzsh_clone.changed
 
 - name: my-enviroment| fix zsh custom directory permissions
   file:

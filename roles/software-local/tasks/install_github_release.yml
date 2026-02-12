@@ -19,18 +19,13 @@
 - name: "{{ package_name }}| get latest version"
   include_tasks: fetch_latest_version.yml
 
-- name: "{{ package_name }}| resolve defaults"
-  set_fact:
-    _ghr_binary: "{{ binary_name | default(package_name) }}"
-    _ghr_dest: "{{ download_dest | default('/tmp/' + package_name + '.tar.gz') }}"
-
-- name: "{{ package_name }}| is it already installed"
+- name: "{{ package_name }}| check if installed"
   stat:
-    path: "~/bin/{{ _ghr_binary }}"
+    path: "~/bin/{{ binary_name | default(package_name) }}"
   register: file_data
 
-- name: "{{ package_name }}| get version"
-  ansible.builtin.shell: "{{ version_cmd | default('~/bin/' + _ghr_binary + ' -V | cut -d \" \" -f 2') }}"
+- name: "{{ package_name }}| get installed version"
+  ansible.builtin.shell: "{{ version_cmd | default('~/bin/' + (binary_name | default(package_name)) + ' -V | cut -d \" \" -f 2') }}"
   register: VERSION
   changed_when: false
   failed_when: false
@@ -38,18 +33,18 @@
 
 - name: "{{ package_name }}| download and install"
   block:
-    - name: "{{ package_name }}| download the latest version"
+    - name: "{{ package_name }}| download latest release"
       get_url:
         url: "{{ download_url }}"
-        dest: "{{ _ghr_dest }}"
+        dest: "{{ download_dest | default('/tmp/' + package_name + '.tar.gz') }}"
         mode: "0755"
 
     - name: "{{ package_name }}| extract binary"
       unarchive:
-        src: "{{ _ghr_dest }}"
+        src: "{{ download_dest | default('/tmp/' + package_name + '.tar.gz') }}"
         dest: "{{ extract_dest | default('~/bin/') }}"
         include: "{{ extract_include | default(omit) }}"
         extra_opts: "{{ extract_extra_opts | default(omit) }}"
       when: is_archive | default(true) | bool
 
-  when: (not file_data.stat.exists) or (VERSION != latest_version)
+  when: (not file_data.stat.exists) or (VERSION.stdout | default('') != latest_version)

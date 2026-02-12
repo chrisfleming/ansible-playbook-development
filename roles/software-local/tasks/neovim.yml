@@ -1,7 +1,8 @@
 ---
-- name: Get version of glibc
+- name: neovim| get version of glibc
   ansible.builtin.shell: ldd --version | awk '/ldd/ {print $NF}'
   register: glibc_version
+  changed_when: false
 
 - name: install nvim| get latest version (glibc > 2.31)
   include_tasks: fetch_latest_version.yml

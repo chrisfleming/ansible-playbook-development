@@ -1,84 +1,78 @@
 ---
-- name: yazi install| get latest version
+- name: yazi| get latest version
   include_tasks: fetch_latest_version.yml
   vars:
     package_name: yazi
     github_repo: sxyazi/yazi
 
-- name: yazi install| is it already installed
+- name: yazi| check if installed
   stat:
     path: ~/bin/yazi
   register: file_data
 
-- name: yazi install| get version
+- name: yazi| get installed version
   ansible.builtin.shell: ~/bin/yazi -V | cut -d " " -f 2
   register: VERSION
+  changed_when: false
   when: file_data.stat.exists
 
-- name: yazi install| when there is no VERSION or it's contents don't match, do these
+- name: yazi| download and install
   block:
-    - name: yazi install| download the latest version
+    - name: yazi| download latest release
       get_url:
         url: https://github.com/sxyazi/yazi/releases/download/v{{latest_version}}/yazi-x86_64-unknown-linux-musl.zip
         dest: /tmp/yazi.zip
         mode: 0755
 
-    - name: Create a temporary directory
+    - name: yazi| create temporary directory
       ansible.builtin.tempfile:
         state: directory
         suffix: extracted
       register: temp_dir
 
-    - name: yazi Extract binary
+    - name: yazi| extract binary
       unarchive:
         src: /tmp/yazi.zip
         dest: "{{ temp_dir.path }}"
       register: unarchive_result
 
-    - name: Get extracted directory
-      debug:
-        msg: "The files were extracted to: {{ unarchive_result }}"
-
-    - name: Find files in the temporary directory
+    - name: yazi| find extracted directory
       ansible.builtin.find:
-        paths: "{{ temp_dir.path }}" # Path to the temporary directory
-        file_type: directory # Only find files
+        paths: "{{ temp_dir.path }}"
+        file_type: directory
       register: found_files
 
-    - name: yazi install| split it out
+    - name: yazi| set destination path
       set_fact:
         yazi_dir: "~/.usr/local/{{ found_files.files[0].path | basename }}/"
 
-    - name: Get extracted directory
-      debug:
-        msg: "Destination: {{ yazi_dir }}"
-
-    - name: yazi | Recursively remove directory
+    - name: yazi| remove previous install
       ansible.builtin.file:
         path: "{{ yazi_dir }}"
         state: absent
 
-    - name: yazi | Move files to final location
+    - name: yazi| move files to final location
       ansible.builtin.command:
         cmd: mv "{{ item.path }}" ~/.usr/local/
       loop: "{{ found_files.files }}"
-      when: found_files.matched > 0 # Only run if files were found
+      when: found_files.matched > 0
 
-    - name: yazi | Remove temporary directory
+    - name: yazi| remove temporary directory
       ansible.builtin.file:
         path: "{{ temp_dir.path }}"
         state: absent
-      when: found_files.matched > 0 # Only remove if files were found
+      when: found_files.matched > 0
 
-    - name: yazi install | link in yazi
+    - name: yazi| link yazi binary
       file:
         src: "{{ yazi_dir }}/yazi"
         dest: ~/bin/yazi
         state: link
-    - name: yazi install | link in ya
+
+    - name: yazi| link ya binary
       file:
         src: "{{ yazi_dir }}/ya"
         dest: ~/bin/ya
         state: link
 
-  when: (not file_data.stat.exists) or (VERSION != latest_version)
+  when: (not file_data.stat.exists) or (VERSION.stdout | default('') != latest_version)
