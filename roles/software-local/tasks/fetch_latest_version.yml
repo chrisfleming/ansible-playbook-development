@@ -1,0 +1,54 @@
+---
+# Reusable task to fetch the latest GitHub release version with daily caching.
+#
+# Required variables (pass via include_tasks vars):
+#   package_name  - cache filename and display name (e.g. "ripgrep")
+#   github_repo   - owner/repo string (e.g. "BurntSushi/ripgrep")
+#
+# Optional variables:
+#   strip_v       - strip leading 'v' from tag_name (default: true)
+#
+# Sets fact:
+#   latest_version - the resolved version string
+
+- name: "{{ package_name }}| ensure cache directory exists"
+  file:
+    path: ~/.cache/ansible-versions
+    state: directory
+    mode: "0755"
+
+- name: "{{ package_name }}| check for cached version"
+  stat:
+    path: "~/.cache/ansible-versions/{{ package_name }}"
+  register: version_cache
+
+- name: "{{ package_name }}| read cached version"
+  slurp:
+    src: "~/.cache/ansible-versions/{{ package_name }}"
+  register: cached_version
+  when: version_cache.stat.exists and
+        ((ansible_date_time.epoch | int) - (version_cache.stat.mtime | int)) < 86400
+
+- name: "{{ package_name }}| use cached version"
+  set_fact:
+    latest_version: "{{ cached_version.content | b64decode | trim }}"
+  when: cached_version is not skipped
+
+- name: "{{ package_name }}| fetch latest version from GitHub"
+  uri:
+    url: "https://api.github.com/repos/{{ github_repo }}/releases/latest"
+    return_content: true
+  register: latest
+  when: cached_version is skipped
+
+- name: "{{ package_name }}| extract version from response"
+  set_fact:
+    latest_version: "{{ latest.json.tag_name | regex_replace('^v', '') if strip_v | default(true) else latest.json.tag_name }}"
+  when: cached_version is skipped
+
+- name: "{{ package_name }}| write version to cache"
+  copy:
+    content: "{{ latest_version }}"
+    dest: "~/.cache/ansible-versions/{{ package_name }}"
+    mode: "0644"
+  when: cached_version is skipped
