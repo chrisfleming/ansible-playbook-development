@@ -18,10 +18,6 @@
 
 - name: "{{ package_name }}| get latest version"
   include_tasks: fetch_latest_version.yml
-  vars:
-    package_name: "{{ package_name }}"
-    github_repo: "{{ github_repo }}"
-    strip_v: "{{ strip_v | default(true) }}"
 
 - name: "{{ package_name }}| resolve defaults"
   set_fact:
