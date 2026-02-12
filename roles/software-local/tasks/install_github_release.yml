@@ -1,0 +1,59 @@
+---
+# Reusable task to install a GitHub release binary.
+#
+# Required variables (pass via include_tasks vars):
+#   package_name   - display name and cache key
+#   github_repo    - GitHub owner/repo
+#   download_url   - full download URL template (may use {{ latest_version }})
+#
+# Optional variables:
+#   binary_name      - name of binary in ~/bin/ (default: package_name)
+#   strip_v          - strip leading 'v' from tag (default: true)
+#   version_cmd      - shell command to get installed version
+#   download_dest    - where to save download (default: /tmp/<package_name>.tar.gz)
+#   is_archive       - whether download is an archive to extract (default: true)
+#   extract_dest     - where to extract the archive (default: ~/bin/)
+#   extract_include  - include filter for unarchive (default: omit)
+#   extract_extra_opts - extra_opts for unarchive (default: omit)
+
+- name: "{{ package_name }}| get latest version"
+  include_tasks: fetch_latest_version.yml
+  vars:
+    package_name: "{{ package_name }}"
+    github_repo: "{{ github_repo }}"
+    strip_v: "{{ strip_v | default(true) }}"
+
+- name: "{{ package_name }}| resolve defaults"
+  set_fact:
+    _ghr_binary: "{{ binary_name | default(package_name) }}"
+    _ghr_dest: "{{ download_dest | default('/tmp/' + package_name + '.tar.gz') }}"
+
+- name: "{{ package_name }}| is it already installed"
+  stat:
+    path: "~/bin/{{ _ghr_binary }}"
+  register: file_data
+
+- name: "{{ package_name }}| get version"
+  ansible.builtin.shell: "{{ version_cmd | default('~/bin/' + _ghr_binary + ' -V | cut -d \" \" -f 2') }}"
+  register: VERSION
+  changed_when: false
+  failed_when: false
+  when: file_data.stat.exists
+
+- name: "{{ package_name }}| download and install"
+  block:
+    - name: "{{ package_name }}| download the latest version"
+      get_url:
+        url: "{{ download_url }}"
+        dest: "{{ _ghr_dest }}"
+        mode: "0755"
+
+    - name: "{{ package_name }}| extract binary"
+      unarchive:
+        src: "{{ _ghr_dest }}"
+        dest: "{{ extract_dest | default('~/bin/') }}"
+        include: "{{ extract_include | default(omit) }}"
+        extra_opts: "{{ extract_extra_opts | default(omit) }}"
+      when: is_archive | default(true) | bool
+
+  when: (not file_data.stat.exists) or (VERSION != latest_version)

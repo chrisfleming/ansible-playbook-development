@@ -1,27 +1,11 @@
 ---
-- name: keychain install| get latest version
-  include_tasks: fetch_latest_version.yml
+- name: keychain install
+  include_tasks: install_github_release.yml
   vars:
     package_name: keychain
     github_repo: funtoo/keychain
     strip_v: false
-
-- name: keychain install| is it already installed
-  stat:
-    path: ~/bin/keychain
-  register: file_data
-
-- name: keychain install| get version
-  ansible.builtin.shell: ~/bin/keychain -V 2>&1 | head -1 | grep -oP '[\d.]+'
-  register: VERSION
-  when: file_data.stat.exists
-
-- name: keychain install| when there is no VERSION or it's contents don't match, do these
-  block:
-    - name: keychain install| download the latest version
-      get_url:
-        url: "https://github.com/funtoo/keychain/releases/download/{{ latest_version }}/keychain"
-        dest: ~/bin/keychain
-        mode: 0755
-
-  when: (not file_data.stat.exists) or (VERSION != latest_version)
+    is_archive: false
+    download_url: "https://github.com/funtoo/keychain/releases/download/{{ latest_version }}/keychain"
+    download_dest: ~/bin/keychain
+    version_cmd: "~/bin/keychain -V 2>&1 | grep -oP 'v?\\d+\\.\\d+\\.\\d+' | head -n1"

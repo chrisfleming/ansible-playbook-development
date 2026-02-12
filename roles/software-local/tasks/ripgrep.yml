@@ -1,40 +1,10 @@
 ---
-- name: install| get latest version
-  include_tasks: fetch_latest_version.yml
+- name: ripgrep install
+  include_tasks: install_github_release.yml
   vars:
     package_name: ripgrep
     github_repo: BurntSushi/ripgrep
-
-- name: install| is it already installed
-  stat:
-    path: ~/bin/rg
-  register: file_data
-
-- name: install| get version
-  ansible.builtin.shell: ~/bin/rg -V | cut -d " " -f 2
-  register: VERSION
-  when: file_data.stat.exists
-
-- name: install| when there is no VERSION or it's contents don't match, do these
-  block:
-    - name: install| download the latest version
-      get_url:
-        # https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep-14.1.0-x86_64-unknown-linux-musl.tar.gz
-        url: "https://github.com/BurntSushi/ripgrep/releases/download/{{ latest_version }}/ripgrep-{{ latest_version}}-x86_64-unknown-linux-musl.tar.gz"
-        dest: /tmp/ripgrep.tar.gz
-        mode: 0755
-
-    - name: Create temporary build directory
-      ansible.builtin.tempfile:
-        state: directory
-        suffix: ripgrep
-      register: extract_dir
-
-    - name: Extract binary
-      unarchive:
-        src: /tmp/ripgrep.tar.gz
-        dest: ~/bin/
-        include: ripgrep-{{ latest_version }}-x86_64-unknown-linux-musl/rg
-        extra_opts: ["--strip-components=1"]
-
-  when: (not file_data.stat.exists) or (VERSION != latest_version)
+    binary_name: rg
+    download_url: "https://github.com/BurntSushi/ripgrep/releases/download/{{ latest_version }}/ripgrep-{{ latest_version }}-x86_64-unknown-linux-musl.tar.gz"
+    extract_include: "ripgrep-{{ latest_version }}-x86_64-unknown-linux-musl/rg"
+    extract_extra_opts: ["--strip-components=1"]

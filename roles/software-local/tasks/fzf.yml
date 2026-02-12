@@ -1,31 +1,7 @@
 ---
-- name: fzf install| get latest version
-  include_tasks: fetch_latest_version.yml
+- name: fzf install
+  include_tasks: install_github_release.yml
   vars:
     package_name: fzf
     github_repo: junegunn/fzf
-
-- name: fzf install| is it already installed
-  stat:
-    path: ~/bin/fzf
-  register: file_data
-
-- name: fzf install| get version
-  ansible.builtin.shell: ~/bin/fzf -V | cut -d " " -f 2
-  register: VERSION
-  when: file_data.stat.exists
-
-- name: fzf install| when there is no VERSION or it's contents don't match, do these
-  block:
-    - name: fzf install| download the latest version
-      get_url:
-        url: "https://github.com/junegunn/fzf/releases/download/v{{ latest_version }}/fzf-{{ latest_version}}-linux_amd64.tar.gz"
-        dest: /tmp/fzf.tar.gz
-        mode: 0755
-
-    - name: fzf Extract binary
-      unarchive:
-        src: /tmp/fzf.tar.gz
-        dest: ~/bin/
-
-  when: (not file_data.stat.exists) or (VERSION != latest_version)
+    download_url: "https://github.com/junegunn/fzf/releases/download/v{{ latest_version }}/fzf-{{ latest_version }}-linux_amd64.tar.gz"

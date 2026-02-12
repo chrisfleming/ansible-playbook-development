@@ -1,33 +1,8 @@
 ---
-- name: install| get latest version
-  include_tasks: fetch_latest_version.yml
+- name: lazygit install
+  include_tasks: install_github_release.yml
   vars:
     package_name: lazygit
     github_repo: jesseduffield/lazygit
-
-- name: install| is it already installed
-  stat:
-    path: ~/bin/lazygit
-  register: file_data
-
-- name: install| get version
-  ansible.builtin.shell: ~/bin/lazygit -V | cut -d " " -f 2
-  register: VERSION
-  when: file_data.stat.exists
-
-- name: install| when there is no VERSION or it's contents don't match, do these
-  block:
-    - name: install| download the latest version
-      get_url:
-        # https://github.com/jesseduffield/lazygit/releases/download/v0.41.0/lazygit_0.41.0_Linux_x86_64.tar.gz
-        url: "https://github.com/jesseduffield/lazygit/releases/download/v{{ latest_version }}/lazygit_{{ latest_version}}_Linux_x86_64.tar.gz"
-        dest: /tmp/lazygit.tar.gz
-        mode: 0755
-
-    - name: Extract binary
-      unarchive:
-        src: /tmp/lazygit.tar.gz
-        dest: ~/bin/
-        include: lazygit
-
-  when: (not file_data.stat.exists) or (VERSION != latest_version)
+    download_url: "https://github.com/jesseduffield/lazygit/releases/download/v{{ latest_version }}/lazygit_{{ latest_version }}_Linux_x86_64.tar.gz"
+    extract_include: lazygit

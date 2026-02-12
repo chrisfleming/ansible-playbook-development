@@ -1,31 +1,7 @@
 ---
-- name: install| get latest version
-  include_tasks: fetch_latest_version.yml
+- name: mcfly install
+  include_tasks: install_github_release.yml
   vars:
     package_name: mcfly
     github_repo: cantino/mcfly
-
-- name: install| is it already installed
-  stat:
-    path: ~/bin/mcfly
-  register: file_data
-
-- name: install| get version
-  ansible.builtin.shell: ~/bin/mcfly -V | cut -d " " -f 2
-  register: VERSION
-  when: file_data.stat.exists
-
-- name: install| when there is no VERSION or it's contents don't match, do these
-  block:
-    - name: install| download the latest version
-      get_url:
-        url: "https://github.com/cantino/mcfly/releases/download/v{{ latest_version }}/mcfly-v{{ latest_version}}-i686-unknown-linux-musl.tar.gz"
-        dest: /tmp/mcfly.tar.gz
-        mode: 0755
-
-    - name: Extract binary
-      unarchive:
-        src: /tmp/mcfly.tar.gz
-        dest: ~/bin/
-
-  when: (not file_data.stat.exists) or (VERSION != latest_version)
+    download_url: "https://github.com/cantino/mcfly/releases/download/v{{ latest_version }}/mcfly-v{{ latest_version }}-i686-unknown-linux-musl.tar.gz"

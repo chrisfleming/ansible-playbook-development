@@ -1,31 +1,7 @@
 ---
-- name: starship install| get latest version
-  include_tasks: fetch_latest_version.yml
+- name: starship install
+  include_tasks: install_github_release.yml
   vars:
     package_name: starship
     github_repo: starship/starship
-
-- name: starship install| is it already installed
-  stat:
-    path: ~/bin/starship
-  register: file_data
-
-- name: starship install| get version
-  ansible.builtin.shell: ~/bin/starship -V | cut -d " " -f 2
-  register: VERSION
-  when: file_data.stat.exists
-
-- name: starship install| when there is no VERSION or it's contents don't match, do these
-  block:
-    - name: starship install| download the latest version
-      get_url:
-        url: "https://github.com/starship/starship/releases/download/v{{ latest_version }}/starship-x86_64-unknown-linux-musl.tar.gz"
-        dest: /tmp/starship.tar.gz
-        mode: 0755
-
-    - name: starship install| extract binary
-      unarchive:
-        src: /tmp/starship.tar.gz
-        dest: ~/bin/
-
-  when: (not file_data.stat.exists) or (VERSION != latest_version)
+    download_url: "https://github.com/starship/starship/releases/download/v{{ latest_version }}/starship-x86_64-unknown-linux-musl.tar.gz"
