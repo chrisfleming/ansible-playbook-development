@@ -1,0 +1,28 @@
+# Ansible
+*.retry
+secrets.pass
+.ansible/
+
+# Node
+node_modules/
+package-lock.json
+package.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Molecule
+.molecule/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

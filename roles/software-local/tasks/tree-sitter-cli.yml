@@ -1,13 +1,13 @@
 ---
 - name: install tree-sitter-cli| confirm if tree-sitter is installed
-  command: which tree-sitter
+  ansible.builtin.command: which tree-sitter
   register: treesitter_check
   ignore_errors: true
   changed_when: false
 
-- debug:
+- ansible.builtin.debug:
     var: treesitter_check
 
 - name: install tree-sitter| run installer
   when: treesitter_check.rc != 0
-  shell: ~/.cargo/bin/cargo install --locked tree-sitter-cli
+  ansible.builtin.shell: ~/.cargo/bin/cargo install --locked tree-sitter-cli

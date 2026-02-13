@@ -1,3 +1,4 @@
+---
 go_version: 1.21.0
 GOPATH: ~/go
 GOROOT: ~/.usr/local/go

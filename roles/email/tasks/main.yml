@@ -1,77 +1,76 @@
+---
 - name: email packages
-  apt:
+  ansible.builtin.apt:
     name: "{{ packages }}"
-    update_cache: yes
+    update_cache: true
     cache_valid_time: 3600
-  become: yes
+  become: true
   vars:
     packages:
-    - neomutt
-    - pass
-    - gpg
-    - catdoc
-#    - html2text
-    - pandoc
-    - msmtp
+      - neomutt
+      - pass
+      - gpg
+      - catdoc
+      #    - html2text
+      - pandoc
+      - msmtp
 
-- git:
+- ansible.builtin.git:
     repo: git@github.com:chrisfleming/pass.git
     dest: ~/.password-store
-    update: no
+    update: false
 
-- copy:
+- ansible.builtin.copy:
     src: mailcap
     dest: ~/.mailcap
 
-- file:
+- ansible.builtin.file:
     path: ~/.mutt/scripts/
     state: directory
 
-- copy:
+- ansible.builtin.copy:
     src: filter_email.py
     dest: ~/.mutt/scripts/filter_email.py
-    mode: 0500
+    mode: "0500"
 
-- copy:
+- ansible.builtin.copy:
     src: sendmail
     dest: ~/.mutt/scripts/sendmail
-    mode: 0500
+    mode: "0500"
 
-
-- copy:
+- ansible.builtin.copy:
     src: MIMEmbellish
     dest: ~/.mutt/scripts/MIMEmbellish
-    mode: 0500
+    mode: "0500"
 
-- template:
+- ansible.builtin.template:
     src: msmtprc
     dest: ~/.msmtprc
 
-- file:
+- ansible.builtin.file:
     path: ~/.pandoc/templates/
     state: directory
 
-- copy:
+- ansible.builtin.copy:
     src: email.html
     dest: ~/.pandoc/templates/email.html
 
-
-- pip:
+- ansible.builtin.pip:
     executable: pip3
     name: beautifulsoup4
     extra_args: --user
 
-- pip:
+- ansible.builtin.pip:
     executable: pip3
     name: lxml
     extra_args: --user
 
-- pip:
+- ansible.builtin.pip:
     executable: pip3
     name: urlscan
     extra_args: --user
 
-- pip:
+- ansible.builtin.pip:
     executable: pip3
     name: premailer
     extra_args: --user
@@ -100,4 +99,3 @@
   #  state: started
   #  name: keybase-redirector.service
   #  scope: user
-

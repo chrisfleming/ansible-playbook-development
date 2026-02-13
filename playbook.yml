@@ -1,7 +1,7 @@
 ---
 - hosts: 127.0.0.1
   connection: local
-  become: yes
+  become: true
   vars_files:
     - vars/postgres.yml
   roles:
@@ -19,7 +19,7 @@
 
 - hosts: 127.0.0.1
   connection: local
-  become: no
+  become: false
   vars_files:
     - vars/postgres.yml
   roles:
@@ -28,7 +28,7 @@
 
 - hosts: 127.0.0.1
   connection: local
-  become: yes
+  become: true
   roles:
     - nodejs
   tags: ["node"]
@@ -39,17 +39,17 @@
     - nvim-coc
   tags: ["coc"]
 
-#- hosts: 127.0.0.1
-# connection: local
-#  become: yes
-#  vars_files:
-#    - vars/postgres.yml
-#  roles:
-#    - ansible-role-postgresql
-#    - ansible-role-postgis
-#  tags: ['postgis']
+    # - hosts: 127.0.0.1
+    # connection: local
+    #  become: yes
+    #  vars_files:
+    #    - vars/postgres.yml
+    #  roles:
+    #    - ansible-role-postgresql
+    #    - ansible-role-postgis
+    #  tags: ['postgis']
 
-    #- hosts: 127.0.0.1
+    # - hosts: 127.0.0.1
     #  connection: local
     #  vars_files:
     #    - vars/postgres.yml
@@ -65,7 +65,7 @@
     - email
   tags: ["email"]
 
-    #- hosts: 127.0.0.1
+    # - hosts: 127.0.0.1
     #  connection: local
     #  vars_files:
     #    - vars/postgres.yml

@@ -1,13 +1,14 @@
-- git:
-    repo: 'https://github.com/sachaos/todoist.git'
+---
+- ansible.builtin.git:
+    repo: "https://github.com/sachaos/todoist.git"
     dest: ~/projects/todoist
 
 - name: Build todoist
-  shell: make install
+  ansible.builtin.shell: make install
   args:
     chdir: ~/projects/todoist
 
-- unarchive:
+- ansible.builtin.unarchive:
     src: https://github.com/peco/peco/releases/download/v0.5.3/peco_linux_amd64.tar.gz
-    remote_src: yes
+    remote_src: true
     dest: ~/bin/

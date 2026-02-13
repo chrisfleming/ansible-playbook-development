@@ -1,8 +1,9 @@
+---
 # neovim-ppa only available on Bionic or Xenial
 # key workaround due to gpg error seen in WLS and bionic
 - name: Add GPG key for neovim-ppa
-  shell: curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x55F96FCF8231B6DD" | apt-key add
-  become: yes
+  ansible.builtin.shell: curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x55F96FCF8231B6DD" | apt-key add
+  become: true
   when: "'Microsoft' in ansible_kernel and ansible_distribution_release == 'bionic'"
 
 #- name: Add GPG key for rael-gc/rvc
@@ -42,9 +43,9 @@
     enabled: true
 
 - name: standard packages
-  apt:
+  ansible.builtin.apt:
     name: "{{ packages }}"
-    update_cache: yes
+    update_cache: true
     cache_valid_time: 3600
   vars:
     packages:
@@ -67,7 +68,7 @@
       #- ruby-bundler
       #   - rvm
       #
-      #   Disabled installing neovim via package ubuntu versions are too old 
+      #   Disabled installing neovim via package ubuntu versions are too old
       # - neovim
 
         #- name: neovim gem

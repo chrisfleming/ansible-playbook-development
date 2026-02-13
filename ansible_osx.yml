@@ -2,32 +2,25 @@
 - hosts: localhost
   tasks:
     - name: Install homebrew
-      include_role:
+      ansible.builtin.include_role:
         name: geerlingguy.mac.homebrew
 
     - name: Make sure homebrew bin is in path
       ansible.builtin.lineinfile:
         path: /etc/paths
         state: present
-        line: '/opt/homebrew/bin'
+        line: "/opt/homebrew/bin"
       become: true
       become_user: root
 
-    - name: 'add custom homebrew repos'
+    - name: "add custom homebrew repos"
       community.general.homebrew_tap:
-        name: [
-#          adoptopenjdk/openjdk,
-          fishtown-analytics/dbt,
-          heroku/brew,
-          homebrew/cask-versions,
-          thoughtbot/formulae,
-          weaveworks/tap,
-        ]
+        name: [fishtown-analytics/dbt, heroku/brew, homebrew/cask-versions, thoughtbot/formulae, weaveworks/tap]
 
     - name: Install core packages via brew casks
       community.general.homebrew_cask:
         name: "{{ item }}"
-      ignore_errors: yes
+      ignore_errors: true
       with_items:
         - bitwarden
         - syncthing
@@ -44,59 +37,59 @@
 
     - name: "Install homebrew packages"
       community.general.homebrew:
-        name: [
-          'autoconf',
-          'automake',
-          'bfg',
-          'coreutils',
-          'curl',
-          'fzf',
-          'gnu-time',
-          'gpg',
-          'htop',
-          'imagemagick@6',
-          'mas',
-          'openssl' ,
-          'pkg-config',
-          'rcm',
-          'readline',
-          'tmux',
-          'unzip',
-          'neovim',
-          'watchman',
-          'xz',
-          'yarn',
-          'zlib',
-          'zsh',
-          'asdf',
-          'mcfly',
-          'zoxide'
-        ]
+        name:
+          - "autoconf"
+          - "automake"
+          - "bfg"
+          - "coreutils"
+          - "curl"
+          - "fzf"
+          - "gnu-time"
+          - "gpg"
+          - "htop"
+          - "imagemagick@6"
+          - "mas"
+          - "openssl"
+          - "pkg-config"
+          - "rcm"
+          - "readline"
+          - "tmux"
+          - "unzip"
+          - "neovim"
+          - "watchman"
+          - "xz"
+          - "yarn"
+          - "zlib"
+          - "zsh"
+          - "asdf"
+          - "mcfly"
+          - "zoxide"
         state: present
-        update_homebrew: yes
+        update_homebrew: true
 
     - name: "Install from Mac app store"
-      shell: mas install {{ item }}
+      ansible.builtin.shell: mas install {{ item }}
       with_items:
         - 497799835 # xcode
 
     - name: Get the path to ZSH
       become: false
-      local_action: command which zsh
+      ansible.builtin.command: which zsh
+      delegate_to: localhost
       register: zsh_path
 
     - name: "Ensure homebrew zsh is in allowed shells"
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /etc/shells
         line: "{{ zsh_path.stdout }}"
       become: true
 
     - name: Set ZSH as the default shell
-      shell: chsh -s $(which zsh) {{ lookup('env', 'USER') }}
+      ansible.builtin.shell: chsh -s $(which zsh) {{ lookup('env', 'USER') }}
       become: true
-   
+
     - name: Add a line to a file if the file does not exist, without passing regexp
       ansible.builtin.lineinfile:
         path: ~/.rc_local
         line: export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-        create: yes
+        create: true

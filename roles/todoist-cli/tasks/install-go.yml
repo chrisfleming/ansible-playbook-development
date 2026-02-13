@@ -1,20 +1,19 @@
-
+---
 - name: Add GPG key for neovim-ppa
-  shell: curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x52B59B1571A79DBC054901C0F6BC817356A3D45E" | apt-key add
-  become: yes
+  ansible.builtin.shell: curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x52B59B1571A79DBC054901C0F6BC817356A3D45E" | apt-key add
+  become: true
   when: "'Microsoft' in ansible_kernel"
 
-- apt_repository:
+- ansible.builtin.apt_repository:
     repo: ppa:longsleep/golang-backports
-  become: yes
-    
+  become: true
 
 - name: standard packages
-  apt:
+  ansible.builtin.apt:
     name: "{{ packages }}"
-    update_cache: yes
+    update_cache: true
     cache_valid_time: 3600
   vars:
     packages:
-    - golang-go
-  become: yes
+      - golang-go
+  become: true

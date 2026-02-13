@@ -1,4 +1,5 @@
+---
 - name: Install GO
-  include_tasks: install-go.yml
+  ansible.builtin.include_tasks: install-go.yml
 - name: Install TODOish
-  include_tasks: install-todoist.yml
+  ansible.builtin.include_tasks: install-todoist.yml

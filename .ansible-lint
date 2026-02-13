@@ -1,0 +1,23 @@
+---
+exclude_paths:
+  - .ansible/
+  - node_modules/
+
+skip_list:
+  - command-instead-of-shell
+  - risky-shell-pipe
+  - name[missing]
+  - yaml[truthy]
+  - role-name
+  - var-naming[no-role-prefix]
+  - var-naming[pattern]
+
+warn_list:
+  - package-latest
+  - no-changed-when
+  - ignore-errors
+  - risky-file-permissions
+  - latest[git]
+  - literal-compare
+  - command-instead-of-module
+  - no-handler

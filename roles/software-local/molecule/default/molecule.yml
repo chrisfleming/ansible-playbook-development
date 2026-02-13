@@ -1,0 +1,23 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: software-local-test
+    image: ubuntu:24.04
+    pre_build_image: true
+    command: /bin/bash -c "sleep infinity"
+    tmpfs:
+      - /run
+      - /tmp
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/../../
+
+verifier:
+  name: ansible

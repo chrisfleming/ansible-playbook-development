@@ -1,11 +1,10 @@
 ---
-
-- set_fact:
+- ansible.builtin.set_fact:
     font_directory: "{{ 'Library/Fonts' if ansible_os_family == 'Darwin' else '.local/share/fonts' }}"
 
 - name: install fontconfg
-  become: True
-  package:
+  become: true
+  ansible.builtin.package:
     state: present
     name: "{{ item }}"
   with_items:
@@ -13,19 +12,18 @@
   when: ansible_os_family != 'Darwin'
 
 - name: download powerline fonts
-  git:
-    repo: 'https://github.com/powerline/fonts.git'
+  ansible.builtin.git:
+    repo: "https://github.com/powerline/fonts.git"
     dest: /tmp/powerline-fonts
 
 - name: create local fonts directory
-  file:
+  ansible.builtin.file:
     path: "{{ '~' ~ '/' ~ font_directory | expanduser }}"
     state: directory
 
 - name: copy fonts
-  command: cp -r /tmp/powerline-fonts/{{ item }}   {{ '~' ~ '/' ~ font_directory | expanduser }}
+  ansible.builtin.command: cp -r /tmp/powerline-fonts/{{ item }}   {{ '~' ~ '/' ~ font_directory | expanduser }}
   with_items: "{{ all_fonts }}"
 
 - name: reset font cache
-  command: fc-cache -f {{ '~' ~ '/' ~ font_directory | expanduser }}
-
+  ansible.builtin.command: fc-cache -f {{ '~' ~ '/' ~ font_directory | expanduser }}

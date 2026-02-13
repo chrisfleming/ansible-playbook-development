@@ -1,0 +1,37 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  become_user: testuser
+  tasks:
+    - name: Check key binaries exist and are executable
+      ansible.builtin.stat:
+        path: "/home/testuser/bin/{{ item }}"
+      register: binary_check
+      loop:
+        - fzf
+        - rg
+        - fd
+        - lazygit
+        - zoxide
+        - starship
+        - mcfly
+        - keychain
+      failed_when: not binary_check.stat.exists or not binary_check.stat.executable
+
+    - name: Verify version cache directory exists
+      ansible.builtin.stat:
+        path: /home/testuser/.cache/ansible-versions
+      register: cache_dir
+      failed_when: not cache_dir.stat.exists
+
+    - name: Verify cached versions were created
+      ansible.builtin.find:
+        paths: /home/testuser/.cache/ansible-versions
+        file_type: file
+      register: cache_files
+      failed_when: cache_files.matched == 0
+
+    - name: Spot-check ripgrep runs
+      ansible.builtin.command: /home/testuser/bin/rg --version
+      changed_when: false

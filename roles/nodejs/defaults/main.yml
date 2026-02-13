@@ -25,4 +25,3 @@ nodejs_npm_global_packages: ["neovim"]
 
 # The path of a package.json file used to install packages globally.
 nodejs_package_json_path: ""
-

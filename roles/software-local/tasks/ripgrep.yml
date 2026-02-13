@@ -1,6 +1,6 @@
 ---
 - name: ripgrep install
-  include_tasks: install_github_release.yml
+  ansible.builtin.include_tasks: install_github_release.yml
   vars:
     package_name: ripgrep
     github_repo: BurntSushi/ripgrep

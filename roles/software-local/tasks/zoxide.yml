@@ -1,13 +1,13 @@
 ---
 - name: zoxide install
-  include_tasks: install_github_release.yml
+  ansible.builtin.include_tasks: install_github_release.yml
   vars:
     package_name: zoxide
     github_repo: ajeetdsouza/zoxide
     download_url: "https://github.com/ajeetdsouza/zoxide/releases/download/v{{ latest_version }}/zoxide-{{ latest_version }}-x86_64-unknown-linux-musl.tar.gz"
 
 - name: Do we have an old autojump file?
-  stat:
+  ansible.builtin.stat:
     path: $HOME/.local/share/autojump/autojump.txt
   register: autojump_data
 

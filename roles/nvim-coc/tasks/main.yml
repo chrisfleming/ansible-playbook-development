@@ -1,25 +1,25 @@
+---
 - name: Check is node installed
-  shell: command -v node >/dev/null 2>&1
+  ansible.builtin.shell: command -v node >/dev/null 2>&1
   register: is_node_exist
-  ignore_errors: yes
+  ignore_errors: true
 
 # TODO Install node if not installed...
 # curl -sfLS install-node.vercel.app | sh -s -- --prefix=$HOME
 
-
 - name: Check if coc extenstions file exists
-  stat:
+  ansible.builtin.stat:
     path: ~/.config/coc/extensions/package.json
   register: package_exists
 
 - name: Create package.json
   ansible.builtin.lineinfile:
     path: ~/.config/coc/extensions/package.json
-    line: {"dependencies":{}}
-    create: yes
+    line: { "dependencies": {}}
+    create: true
   when: package_exists.stat.exists == False
 
-- name:
+- name: Install CoC extensions
   ansible.builtin.command:
     chdir: ~/.config/coc/extensions/
     cmd: "npm install {{ item }} --global-style --ignore-scripts --no-bin-links --no-package-lock --only=prod"

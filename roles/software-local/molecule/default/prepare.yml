@@ -1,0 +1,39 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+  tasks:
+    - name: Install prerequisites
+      ansible.builtin.apt:
+        name:
+          - tar
+          - gzip
+          - xz-utils
+          - unzip
+          - ca-certificates
+          - curl
+          - libfuse2
+        state: present
+        update_cache: true
+
+    - name: Create test user
+      ansible.builtin.user:
+        name: testuser
+        create_home: true
+        shell: /bin/bash
+
+    - name: Create bin directory
+      ansible.builtin.file:
+        path: /home/testuser/bin
+        state: directory
+        owner: testuser
+        group: testuser
+        mode: "0755"
+
+    - name: Create .usr/local directory
+      ansible.builtin.file:
+        path: /home/testuser/.usr/local
+        state: directory
+        owner: testuser
+        group: testuser
+        mode: "0755"

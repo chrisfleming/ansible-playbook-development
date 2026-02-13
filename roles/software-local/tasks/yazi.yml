@@ -1,12 +1,12 @@
 ---
 - name: yazi| get latest version
-  include_tasks: fetch_latest_version.yml
+  ansible.builtin.include_tasks: fetch_latest_version.yml
   vars:
     package_name: yazi
     github_repo: sxyazi/yazi
 
 - name: yazi| check if installed
-  stat:
+  ansible.builtin.stat:
     path: ~/bin/yazi
   register: file_data
 
@@ -17,12 +17,13 @@
   when: file_data.stat.exists
 
 - name: yazi| download and install
+  when: (not file_data.stat.exists) or (VERSION.stdout | default('') != latest_version)
   block:
     - name: yazi| download latest release
-      get_url:
-        url: https://github.com/sxyazi/yazi/releases/download/v{{latest_version}}/yazi-x86_64-unknown-linux-musl.zip
+      ansible.builtin.get_url:
+        url: https://github.com/sxyazi/yazi/releases/download/v{{ latest_version }}/yazi-x86_64-unknown-linux-musl.zip
         dest: /tmp/yazi.zip
-        mode: 0755
+        mode: "0755"
 
     - name: yazi| create temporary directory
       ansible.builtin.tempfile:
@@ -31,7 +32,7 @@
       register: temp_dir
 
     - name: yazi| extract binary
-      unarchive:
+      ansible.builtin.unarchive:
         src: /tmp/yazi.zip
         dest: "{{ temp_dir.path }}"
       register: unarchive_result
@@ -43,7 +44,7 @@
       register: found_files
 
     - name: yazi| set destination path
-      set_fact:
+      ansible.builtin.set_fact:
         yazi_dir: "~/.usr/local/{{ found_files.files[0].path | basename }}/"
 
     - name: yazi| remove previous install
@@ -64,15 +65,13 @@
       when: found_files.matched > 0
 
     - name: yazi| link yazi binary
-      file:
+      ansible.builtin.file:
         src: "{{ yazi_dir }}/yazi"
         dest: ~/bin/yazi
         state: link
 
     - name: yazi| link ya binary
-      file:
+      ansible.builtin.file:
         src: "{{ yazi_dir }}/ya"
         dest: ~/bin/ya
         state: link
-
-  when: (not file_data.stat.exists) or (VERSION.stdout | default('') != latest_version)

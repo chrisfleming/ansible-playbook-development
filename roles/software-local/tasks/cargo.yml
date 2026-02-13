@@ -1,18 +1,18 @@
 ---
 - name: install cargo| confirm if cargo is installed
-  stat:
+  ansible.builtin.stat:
     path: "~/.cargo/bin/cargo"
   register: cargo_exists
   ignore_errors: true
   changed_when: false
 
 - name: install cargo| debug cargo_exists
-  debug:
+  ansible.builtin.debug:
     var: cargo_exists
 
 - name: install cargo| Download installer
   when: not cargo_exists.stat.exists
-  get_url:
+  ansible.builtin.get_url:
     url: https://sh.rustup.rs
     dest: /tmp/cfleming_rs
     mode: "0700"
@@ -20,4 +20,4 @@
 
 - name: install cargp| run installer
   when: not cargo_exists.stat.exists
-  shell: /tmp/cfleming_rs -y
+  ansible.builtin.shell: /tmp/cfleming_rs -y

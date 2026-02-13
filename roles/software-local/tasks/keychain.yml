@@ -1,6 +1,6 @@
 ---
 - name: keychain install
-  include_tasks: install_github_release.yml
+  ansible.builtin.include_tasks: install_github_release.yml
   vars:
     package_name: keychain
     github_repo: funtoo/keychain

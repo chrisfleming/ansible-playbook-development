@@ -1,35 +1,33 @@
+---
 - name: dasht
-  git:
+  ansible.builtin.git:
     repo: https://github.com/sunaku/dasht.git
     dest: ~/.dasht
     depth: 1
 
-
 - name: set permissions
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
-    mode: 0755
+    mode: "0755"
   loop:
     - ~/.dasht/etc/zsh/completions/
     - ~/.dasht/etc/zsh
 
-
 - name: standard packages
-  become: yes
-  apt:
+  become: true
+  ansible.builtin.apt:
     name: "{{ packages }}"
-    update_cache: yes
+    update_cache: true
     cache_valid_time: 3600
   vars:
     packages:
-    - socat
-    - w3m
-    - gawk
-    - wget
-
+      - socat
+      - w3m
+      - gawk
+      - wget
 
 - name: dasht documentation
-  command: dasht-docsets-install -f  "{{ item }}"
+  ansible.builtin.command: dasht-docsets-install -f  "{{ item }}"
   args:
     chdir: ~/.dasht/bin/
   loop:
@@ -43,4 +41,3 @@
     - html
     - docker
     - ansible
-

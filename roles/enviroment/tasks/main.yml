@@ -1,3 +1,4 @@
+---
 - name: oh-my-zsh| clone repository
   ansible.builtin.git:
     repo: https://github.com/robbyrussell/oh-my-zsh
@@ -14,21 +15,20 @@
   when: ansible_facts['distribution'] == 'MacOSX'
 
 - name: asdf| install (Linux)
-  import_tasks: asdf.yml
+  ansible.builtin.import_tasks: asdf.yml
   when: ansible_facts['distribution'] != 'MacOSX'
 
 - name: node| install via asdf
-  import_tasks: node.yml
-
+  ansible.builtin.import_tasks: node.yml
 - name: pip| upgrade to latest
-  pip:
+  ansible.builtin.pip:
     name: pip
     state: latest # noqa package-latest
     virtualenv: ~/.venv/system/
     virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
 - name: hatch| install
-  pip:
+  ansible.builtin.pip:
     name: hatch
     state: latest
     virtualenv: ~/.venv/system/
@@ -46,14 +46,14 @@
     state: link
 
 - name: ntfy| install
-  pip:
+  ansible.builtin.pip:
     name: ntfy
     state: latest
     virtualenv: ~/.venv/system/
     virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
 - name: ntfy| configure
-  template:
+  ansible.builtin.template:
     src: ntfy.yml
     dest: ~/.ntfy.yml
 
@@ -64,51 +64,51 @@
     state: link
 
 - name: pushbullet| install requests dependency
-  pip:
+  ansible.builtin.pip:
     name: requests
     state: latest
     virtualenv: ~/.venv/system/
     virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
 
 - name: pushbullet| clone repository
-  git:
+  ansible.builtin.git:
     repo: https://github.com/jchonig/pushbullet.git
     dest: ~/src/pushbullet/
 
 - name: pushbullet| ensure ~/bin directory exists
-  file:
+  ansible.builtin.file:
     path: ~/bin
     state: directory
 
 - name: pushbullet| check if script exists in ~/bin
-  stat:
+  ansible.builtin.stat:
     path: ~/bin/pushbullet
   register: pushbullet_bin
 
 - name: pushbullet| copy script to ~/bin
-  copy:
+  ansible.builtin.copy:
     src: ~/src/pushbullet/pushbullet
     dest: ~/bin/pushbullet
-    mode: 0700
+    mode: "0700"
   when: not pushbullet_bin.stat.exists
 
 - name: pushbullet| set shebang to venv python
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: ~/bin/pushbullet
     regex: "^#!"
     line: "#!{{ ansible_facts.env.HOME }}/.venv/system/bin/python"
   when: not pushbullet_bin.stat.exists
 
 - name: pushbullet| configure credentials in .netrc
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: ~/.netrc
-    regexp: '^machine pushbullet\.com'
-    create: yes
+    regexp: "^machine pushbullet\\.com"
+    create: true
     line: "machine pushbullet.com login {{ pushbullet_user }} password {{ pushbullet_api_token }}"
-    mode: 0600
+    mode: "0600"
 
 - name: black| install
-  pip:
+  ansible.builtin.pip:
     name: black
     state: latest
     virtualenv: ~/.venv/system/
@@ -121,7 +121,7 @@
     state: link
 
 - name: tmuxp| install
-  pip:
+  ansible.builtin.pip:
     name: tmuxp
     state: latest
     virtualenv: ~/.venv/system/
@@ -134,43 +134,43 @@
     state: link
 
 - name: dircolors-solarized| clone repository
-  git:
+  ansible.builtin.git:
     repo: https://github.com/seebi/dircolors-solarized.git
     dest: ~/src/dircolors-solarized/
 
 - name: my-enviroment| clone repository
-  git:
+  ansible.builtin.git:
     repo: git@github.com:chrisfleming/my-enviroment.git
     version: master
     dest: $HOME/projects/my-enviroment
     accept_hostkey: false
-    recursive: no
+    recursive: false
   register: enviromentclone
 
 - name: my-enviroment| run setup_links.sh
-  command: $HOME/projects/my-enviroment/bin/setup_links.sh
+  ansible.builtin.command: $HOME/projects/my-enviroment/bin/setup_links.sh
   changed_when: true
   when: enviromentclone.changed
 
 - name: oh-my-zsh| fix directory permissions
-  file:
+  ansible.builtin.file:
     path: $HOME/.oh-my-zsh
     mode: "g-w,o-w"
     recurse: true
   when: ohmyzsh_clone.changed
 
 - name: my-enviroment| fix zsh custom directory permissions
-  file:
+  ansible.builtin.file:
     path: $HOME/projects/my-enviroment/zsh/custom/
     mode: "g-w,o-w"
     recurse: true
 
 - name: tmux| install plugins
-  git:
+  ansible.builtin.git:
     repo: https://github.com/tmux-plugins/tpm
     dest: $HOME/.tmux/plugins/tpm
 
 - name: tmux plugins
-  command: ~/.tmux/plugins/tpm/bin/install_plugins
+  ansible.builtin.command: ~/.tmux/plugins/tpm/bin/install_plugins
   register: tpm_result
   changed_when: "'Installing' in tpm_result.stdout"

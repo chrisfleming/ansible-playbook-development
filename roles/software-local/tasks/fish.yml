@@ -1,6 +1,6 @@
 ---
 - name: fish install
-  include_tasks: install_github_release.yml
+  ansible.builtin.include_tasks: install_github_release.yml
   vars:
     package_name: fish
     github_repo: fish-shell/fish-shell

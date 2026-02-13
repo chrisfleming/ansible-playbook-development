@@ -1,12 +1,12 @@
 ---
 - name: asdf| get latest version
-  include_tasks: fetch_latest_version.yml
+  ansible.builtin.include_tasks: fetch_latest_version.yml
   vars:
     package_name: asdf
     github_repo: asdf-vm/asdf
 
 - name: asdf| check if installed
-  stat:
+  ansible.builtin.stat:
     path: ~/bin/asdf
   register: file_data
 
@@ -17,15 +17,17 @@
   when: file_data.stat.exists
 
 - name: asdf| download and install
+  when: (not file_data.stat.exists) or (VERSION.stdout | default('') != latest_version)
+
   block:
     - name: asdf| download latest release
-      get_url:
+      ansible.builtin.get_url:
         url: "https://github.com/asdf-vm/asdf/releases/download/v{{ latest_version }}/asdf-v{{ latest_version }}-linux-amd64.tar.gz"
         dest: /tmp/asdf.tar.gz
-        mode: 0755
+        mode: "0755"
 
     - name: asdf| extract binary
-      unarchive:
+      ansible.builtin.unarchive:
         src: /tmp/asdf.tar.gz
         dest: ~/bin/
 
@@ -33,20 +35,19 @@
       ansible.builtin.file:
         path: /tmp/asdf.tar.gz
         state: absent
-  when: (not file_data.stat.exists) or (VERSION.stdout | default('') != latest_version)
-
 - name: asdf| check for old files
-  stat:
+  ansible.builtin.stat:
     path: ~/.asdf/asdf.sh
   register: old_file_data
 
 - name: asdf| migrate from old version
+  when: old_file_data.stat.exists
   block:
     - name: asdf| regenerate shims
       ansible.builtin.shell: ~/bin/asdf reshim
       changed_when: true
 
     - name: asdf| remove old files
-      ansible.builtin.shell: find $HOME/.asdf/ -maxdepth 1 -mindepth 1 -not -name downloads -not -name plugins -not -name installs -not -name shims -exec rm -r {} \;
+      ansible.builtin.shell: find $HOME/.asdf/ -maxdepth 1 -mindepth 1 -not -name downloads -not -name plugins -not -name installs -not -name shims -exec rm -r
+        {} \;
       changed_when: true
-  when: old_file_data.stat.exists
