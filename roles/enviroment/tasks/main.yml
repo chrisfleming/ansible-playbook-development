@@ -11,11 +11,11 @@
     name: ["asdf"]
     state: present
     update_homebrew: true
-  when: ansible_distribution == 'MacOSX'
+  when: ansible_facts['distribution'] == 'MacOSX'
 
 - name: asdf| install (Linux)
   import_tasks: asdf.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX'
 
 - name: node| install via asdf
   import_tasks: node.yml

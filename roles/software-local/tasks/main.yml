@@ -16,32 +16,32 @@
       ]
     state: present
     update_homebrew: yes
-  when: ansible_distribution == 'MacOSX'
+  when: ansible_facts['distribution'] == 'MacOSX'
 
 - name: Install Neovim
   import_tasks: neovim.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX'
 - name: Install Local McFly
   import_tasks: mcfly.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX'
 - name: Install ripgrep
   import_tasks: ripgrep.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX'
 - name: Install fdfind
   import_tasks: fdfind.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX'
 - name: Install Lazygit
   import_tasks: lazygit.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX'
 - name: Install Zoxide
   import_tasks: zoxide.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX'
 - name: Install fzf
   import_tasks: fzf.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX'
 - name: Install yazi
   import_tasks: yazi.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX'
 
 ## We're only going to install a fish shell if it's not present
 - name: install fish| is there a system fish
@@ -51,13 +51,13 @@
 
 - name: Install fish
   import_tasks: fish.yml
-  when: ansible_distribution != 'MacOSX' and not fish_stat.stat.exists
+  when: ansible_facts['distribution'] != 'MacOSX' and not fish_stat.stat.exists
 - name: Install keychain
   import_tasks: keychain.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX'
 - name: Install starship
   import_tasks: starship.yml
-  when: ansible_distribution != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX'
 
 - name: Intall cargo/rust
   import_tasks: cargo.yml

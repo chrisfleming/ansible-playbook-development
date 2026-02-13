@@ -27,7 +27,7 @@
     src: "~/.cache/ansible-versions/{{ package_name }}"
   register: cached_version
   when: version_cache.stat.exists and
-        ((ansible_date_time.epoch | int) - (version_cache.stat.mtime | int)) < 86400
+        ((ansible_facts['date_time'].epoch | int) - (version_cache.stat.mtime | int)) < 86400
 
 - name: "{{ package_name }}| use cached version"
   set_fact:
