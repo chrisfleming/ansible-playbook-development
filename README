@@ -20,7 +20,39 @@ ssh-add
 # export PATH=~/.local/bin:$PATH
 pip install ansible
 ansible-galaxy install -r requirements.yml
-ansible-playbook -i ./hosts --ask-become-pass playbook.yml --tags=basic,email --ask-vault-pass -v
+ansible-playbook --ask-become-pass playbook.yml --tags=basic,email --ask-vault-pass -v
+
+
+Linting
+-------
+
+pip install ansible-lint yamllint
+
+yamllint .
+ansible-lint
+
+
+Testing
+-------
+
+pip install 'molecule[docker]'
+
+Run the full test suite for the software-local role (requires Docker):
+
+    cd roles/software-local
+    molecule test
+
+This runs: create container, prepare, converge, idempotence check, verify, destroy.
+
+Individual steps for development:
+
+    molecule converge   # just run the role
+    molecule verify     # just run verification
+    molecule login      # shell into the container
+    molecule destroy    # tear down
+
+Note: each full run hits the GitHub API 9+ times and downloads ~200MB of
+binaries, so it takes a while.
 
 
 

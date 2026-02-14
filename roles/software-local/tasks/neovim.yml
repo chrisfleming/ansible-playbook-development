@@ -61,6 +61,7 @@
       ansible.builtin.shell: ./nvim.appimage --appimage-extract
       args:
         chdir: ~/.usr/local/AppImage/neovim/
+        creates: ~/.usr/local/AppImage/neovim/squashfs-root/usr/bin/nvim
 
     - name: Link
       ansible.builtin.file:

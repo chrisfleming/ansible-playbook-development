@@ -1,11 +1,21 @@
 ---
+- name: Bootstrap Python
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install Python via raw (no Python needed)
+      ansible.builtin.raw: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y python3
+      changed_when: true
+
 - name: Prepare
   hosts: all
-  become: true
+  environment:
+    DEBIAN_FRONTEND: noninteractive
   tasks:
     - name: Install prerequisites
       ansible.builtin.apt:
         name:
+          - sudo
           - tar
           - gzip
           - xz-utils
@@ -13,6 +23,8 @@
           - ca-certificates
           - curl
           - libfuse2
+          - build-essential
+          - libclang-dev
         state: present
         update_cache: true
 
