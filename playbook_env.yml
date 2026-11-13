@@ -3,7 +3,6 @@
   connection: local
   vars_files:
     - vars/postgres.yml
-    - vars/vault.yml
   roles:
     - enviroment
     - software-local

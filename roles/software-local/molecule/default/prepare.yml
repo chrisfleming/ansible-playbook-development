@@ -4,7 +4,12 @@
   gather_facts: false
   tasks:
     - name: Install Python via raw (no Python needed)
-      ansible.builtin.raw: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y python3
+      ansible.builtin.raw: |
+        if command -v apt-get >/dev/null; then
+          DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y python3
+        else
+          dnf install -y python3.12
+        fi
       changed_when: true
 
 - name: Prepare
@@ -12,7 +17,8 @@
   environment:
     DEBIAN_FRONTEND: noninteractive
   tasks:
-    - name: Install prerequisites
+    - name: Install prerequisites (Debian family)
+      when: ansible_facts['os_family'] == 'Debian'
       ansible.builtin.apt:
         name:
           - sudo
@@ -27,6 +33,22 @@
           - libclang-dev
         state: present
         update_cache: true
+
+    - name: Install prerequisites (RedHat family)
+      when: ansible_facts['os_family'] == 'RedHat'
+      ansible.builtin.dnf:
+        name:
+          - sudo
+          - tar
+          - gzip
+          - xz
+          - unzip
+          - ca-certificates
+          - curl
+          - fuse-libs
+          - gcc
+          - clang-devel
+        state: present
 
     - name: Create test user
       ansible.builtin.user:

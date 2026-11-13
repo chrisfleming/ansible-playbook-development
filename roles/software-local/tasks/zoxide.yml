@@ -14,4 +14,4 @@
 - name: On first install import autojump data
   ansible.builtin.command:
     cmd: ~/bin/zoxide import --from=autojump "$HOME/.local/share/autojump/autojump.txt"
-  when: (not file_data.stat.exists) and autojump_data.stat.exists
+  when: (not file_data.stat.exists) and autojump_data.stat.exists and manage_release

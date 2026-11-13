@@ -1,0 +1,8 @@
+---
+# Where my-enviroment is checked out. Other repos and dotfiles refer to this
+# path, so setup_links.sh adds a compatibility symlink if you use another one.
+myenv_dest: "{{ ansible_facts.env.HOME }}/projects/my-enviroment"
+myenv_repo: git@github.com:chrisfleming/my-enviroment.git
+
+# Only used where mise isn't available to manage node.
+asdf_node_version: "16.20.2"

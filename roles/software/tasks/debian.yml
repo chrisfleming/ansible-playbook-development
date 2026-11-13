@@ -1,0 +1,24 @@
+---
+# Fish - using ppa to get an up to date version:
+- name: Add fish repository from PPA (Ubuntu only)
+  when: ansible_facts['distribution'] == 'Ubuntu'
+  ansible.builtin.deb822_repository:
+    name: fish-shell
+    types: [deb]
+    uris: "https://ppa.launchpadcontent.net/fish-shell/release-4/ubuntu"
+    suites: "{{ ansible_distribution_release }}"
+    components: main
+    signed_by: "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x88421E703EDC7AF54967DED473C9FCC9E2BB48DA"
+    state: present
+    enabled: true
+
+- name: Install standard packages (apt)
+  ansible.builtin.apt:
+    name: "{{ packages }}"
+    update_cache: true
+    cache_valid_time: 3600
+  vars:
+    # Ubuntu: fish from the PPA and 7zip; Debian 12 has neither (p7zip-full instead)
+    packages: >-
+      {{ common_packages + debian_packages
+         + (['fish', '7zip'] if ansible_facts['distribution'] == 'Ubuntu' else ['p7zip-full']) }}

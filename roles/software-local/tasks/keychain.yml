@@ -1,11 +1,12 @@
 ---
+# keychain 3.x is distributed as a single python zipapp (.pyz); it needs python3.
 - name: keychain install
   ansible.builtin.include_tasks: install_github_release.yml
   vars:
     package_name: keychain
-    github_repo: funtoo/keychain
+    github_repo: danielrobbins/keychain
     strip_v: false
     is_archive: false
-    download_url: "https://github.com/funtoo/keychain/releases/download/{{ latest_version }}/keychain"
+    download_url: "https://github.com/danielrobbins/keychain/releases/download/{{ latest_version }}/keychain-{{ latest_version }}.pyz"
     download_dest: ~/bin/keychain
     version_cmd: "~/bin/keychain -V 2>&1 | grep -oP 'v?\\d+\\.\\d+\\.\\d+' | head -n1"

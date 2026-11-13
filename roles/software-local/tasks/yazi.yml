@@ -11,9 +11,10 @@
   register: file_data
 
 - name: yazi| get installed version
-  ansible.builtin.shell: ~/bin/yazi -V | cut -d " " -f 2
+  ansible.builtin.shell: ~/bin/yazi -V | grep -oP 'Version:\s*\K[0-9.]+' | head -n1
   register: VERSION
   changed_when: false
+  failed_when: false
   when: file_data.stat.exists
 
 - name: yazi| download and install
@@ -23,6 +24,12 @@
       ansible.builtin.get_url:
         url: https://github.com/sxyazi/yazi/releases/download/v{{ latest_version }}/yazi-x86_64-unknown-linux-musl.zip
         dest: /tmp/yazi.zip
+        mode: "0755"
+
+    - name: yazi| ensure install directory exists
+      ansible.builtin.file:
+        path: ~/.usr/local
+        state: directory
         mode: "0755"
 
     - name: yazi| create temporary directory

@@ -1,15 +1,28 @@
 
 playbook to get my local dev enviroment up and running.
 
-This currently assumes admin permissions are availabe. Will, install python,
-postgres, postgis, neovim general tools
+Supported: Ubuntu, Debian, Rocky/RHEL 8, and Arch (including Omarchy). Works
+with or without root:
+
+  * root:     system packages come from the OS package manager (apt, dnf,
+              pacman) via the "software" role.
+  * no root:  the "software-local" role downloads release binaries into ~/bin
+              (and ~/.usr/local), so everything it installs is in $HOME.
+
+software-local never downloads something the OS already provides (checked in
+/usr/bin and /usr/local/bin), so on Arch nearly everything comes from pacman
+and the same role fills the gaps elsewhere. Set prefer_system_packages=false to
+always use the release binaries.
 
 Ansible Setup
 -------------
 
-sudo apt-get install python3.10-minimal python3.10-venv
-python3.10 -m venv ~/.venv/ansible
+Any python >= 3.9 will do (on Rocky 8: dnf install python3.12).
+
+python3 -m venv ~/.venv/ansible
 . ~/.venv/ansible/bin/activate
+pip install ansible
+ansible-galaxy install -r requirements.yml
 
 
 Basic Use
@@ -17,10 +30,22 @@ Basic Use
 
 eval `ssh-agent`
 ssh-add
-# export PATH=~/.local/bin:$PATH
-pip install ansible
-ansible-galaxy install -r requirements.yml
-ansible-playbook --ask-become-pass playbook.yml --tags=basic,email --ask-vault-pass -v
+
+# With root/sudo: system packages + dotfiles + local tools
+ansible-playbook --ask-become-pass playbook.yml --tags=basic
+
+# Without root:
+ansible-playbook playbook.yml --tags=basic --skip-tags=root
+
+# Other tags: email, dasht, coc, node
+
+If my-enviroment is already checked out somewhere else (e.g. ~/Projects), point
+the playbook at it and run its bin/setup_links.sh yourself:
+
+ansible-playbook playbook.yml --tags=local -e myenv_dest=~/Projects/my-enviroment
+
+On Omarchy, setup_links.sh keeps Omarchy's own bash, terminal, nvim, tmux and
+starship config and only layers my aliases/history on top (see that script).
 
 
 Linting
@@ -35,9 +60,10 @@ ansible-lint
 Testing
 -------
 
-pip install 'molecule[docker]'
+pip install molecule molecule-plugins[docker]
 
-Run the full test suite for the software-local role (requires Docker):
+Run the full test suite for the software-local role (requires Docker). It runs
+on Ubuntu 24.04, Debian 12 and Rocky 8:
 
     cd roles/software-local
     molecule test

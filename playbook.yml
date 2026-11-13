@@ -6,13 +6,12 @@
     - vars/postgres.yml
   roles:
     - software
-  tags: ["basic"]
+  tags: ["basic", "root"]
 
 - hosts: 127.0.0.1
   connection: local
   vars_files:
     - vars/postgres.yml
-    - vars/vault.yml
   roles:
     - enviroment
   tags: ["basic", "enviroment"]
@@ -24,7 +23,7 @@
     - vars/postgres.yml
   roles:
     - software-local
-  tags: ["local"]
+  tags: ["basic", "local"]
 
 - hosts: 127.0.0.1
   connection: local

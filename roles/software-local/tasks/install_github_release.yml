@@ -16,22 +16,45 @@
 #   extract_include  - include filter for unarchive (default: omit)
 #   extract_extra_opts - extra_opts for unarchive (default: omit)
 
-- name: "{{ package_name }}| get latest version"
-  ansible.builtin.include_tasks: fetch_latest_version.yml
 - name: "{{ package_name }}| check if installed"
   ansible.builtin.stat:
     path: "~/bin/{{ binary_name | default(package_name) }}"
   register: file_data
+
+- name: "{{ package_name }}| check for a system provided copy"
+  ansible.builtin.stat:
+    path: "{{ item }}/{{ binary_name | default(package_name) }}"
+  loop: "{{ system_bin_dirs }}"
+  register: system_copy
+  when: prefer_system_packages | bool
+
+# Use the system copy (and don't touch the GitHub API) unless we have already
+# been managing our own copy in ~/bin.
+- name: "{{ package_name }}| decide whether to manage a release binary"
+  ansible.builtin.set_fact:
+    manage_release: >-
+      {{ file_data.stat.exists
+         or not (prefer_system_packages | bool)
+         or not (system_copy.results | default([]) | selectattr('stat.exists', 'defined') | selectattr('stat.exists') | list | length > 0) }}
+
+- name: "{{ package_name }}| using system package"
+  ansible.builtin.debug:
+    msg: "{{ package_name }} is provided by the system, skipping release install"
+  when: not manage_release
+
+- name: "{{ package_name }}| get latest version"
+  ansible.builtin.include_tasks: fetch_latest_version.yml
+  when: manage_release
 
 - name: "{{ package_name }}| get installed version"
   ansible.builtin.shell: "{{ version_cmd | default('~/bin/' + (binary_name | default(package_name)) + ' -V | cut -d \" \" -f 2') }}"
   register: VERSION
   changed_when: false
   failed_when: false
-  when: file_data.stat.exists
+  when: manage_release and file_data.stat.exists
 
 - name: "{{ package_name }}| download and install"
-  when: (not file_data.stat.exists) or (VERSION.stdout | default('') != latest_version)
+  when: manage_release and ((not file_data.stat.exists) or (VERSION.stdout | default('') != latest_version))
   block:
     - name: "{{ package_name }}| download latest release"
       ansible.builtin.get_url:

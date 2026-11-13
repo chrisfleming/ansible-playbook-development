@@ -1,0 +1,17 @@
+---
+# When true, a tool already installed system-wide (e.g. via pacman/apt/dnf)
+# is used as is and no release binary is downloaded into ~/bin. Set false to
+# always use the GitHub release binaries.
+prefer_system_packages: true
+
+# Directories searched for a system-provided copy of a tool.
+system_bin_dirs:
+  - /usr/bin
+  - /usr/local/bin
+
+# Tools whose install is skipped when the system already provides them.
+system_checked_tools:
+  - nvim
+  - yazi
+  - tree-sitter
+  - fish

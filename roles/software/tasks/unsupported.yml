@@ -1,0 +1,4 @@
+---
+- name: Report unsupported OS family
+  ansible.builtin.debug:
+    msg: "No system package support for {{ ansible_facts['os_family'] }}; relying on software-local"

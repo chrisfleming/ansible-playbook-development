@@ -1,76 +1,9 @@
 ---
-# neovim-ppa only available on Bionic or Xenial
-# key workaround due to gpg error seen in WLS and bionic
-- name: Add GPG key for neovim-ppa
-  ansible.builtin.shell: curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x55F96FCF8231B6DD" | apt-key add
-  become: true
-  when: "'Microsoft' in ansible_kernel and ansible_distribution_release == 'bionic'"
-
-#- name: Add GPG key for rael-gc/rvc
-#shell: curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x8094BB14F4E3FBBE" | apt-key add
-#  become: yes
-#  when: "'Microsoft' in ansible_kernel and ansible_distribution_release == 'bionic'"
-
-#- apt_repository:
-#repo: "deb http://ppa.launchpad.net/rael-gc/rvm/ubuntu {{ansible_distribution_release}} main"
-#state: present
-#when: "ansible_distribution == 'Ubuntu' and 'Microsoft' in ansible_kernel"
-
-#- apt_repository:
-#repo: "deb http://ppa.launchpad.net/neovim-ppa/stable/ubuntu {{ansible_distribution_release}} main "
-#state: present
-#when: "ansible_distribution == 'Ubuntu' and 'Microsoft' in ansible_kernel"
-
-# Non WSL
-#- apt_repository:
-#    repo: ppa:rael-gc/rvm
-#  when: "ansible_distribution == 'Ubuntu' and 'Microsoft' not in ansible_kernel"
-
-#- apt_repository:
-#repo: ppa:neovim-ppa/stable
-#when: "'Microsoft' not in ansible_kernel and ansible_distribution == 'Ubuntu' and (ansible_distribution_release == 'bionic' or ansible_distribution_release == 'xenial')"
-
-# Fish - using ppa to get an up to date version:
-- name: Add fish repository from PPA
-  ansible.builtin.deb822_repository:
-    name: fish-shell
-    types: [deb]
-    uris: "https://ppa.launchpadcontent.net/fish-shell/release-4/ubuntu"
-    suites: "{{ ansible_distribution_release }}"
-    components: main
-    signed_by: "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x88421E703EDC7AF54967DED473C9FCC9E2BB48DA"
-    state: present
-    enabled: true
-
-- name: standard packages
-  ansible.builtin.apt:
-    name: "{{ packages }}"
-    update_cache: true
-    cache_valid_time: 3600
-  vars:
-    packages:
-      - fish
-      - git
-      - zsh
-      - curl
-      - traceroute
-      - htop
-      - mosh
-      - python3
-      - python3-pip
-      - python3-psycopg2
-      - python3-venv
-      - tmux
-      - zip
-      - 7zip
-      #- ruby
-      #- ruby-dev
-      #- ruby-bundler
-      #   - rvm
-      #
-      #   Disabled installing neovim via package ubuntu versions are too old
-      # - neovim
-
-        #- name: neovim gem
-        #command: gem install neovim
-        #
+# System packages. Needs root (become). Without root skip this role with
+# --skip-tags root; the software-local role then provides the tools as release
+# binaries in ~/bin.
+- name: Install system packages
+  ansible.builtin.include_tasks: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_facts['os_family'] | lower }}.yml"
+    - unsupported.yml

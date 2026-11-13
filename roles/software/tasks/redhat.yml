@@ -1,0 +1,7 @@
+---
+# Rocky / RHEL / Alma. Base repos only: software-local supplies the newer
+# tools (EL8 packages are too old to be useful for most of them).
+- name: Install standard packages (dnf)
+  ansible.builtin.dnf:
+    name: "{{ common_packages + redhat_packages }}"
+    state: present

@@ -2,4 +2,5 @@
 127.0.0.1
 
 [localhost:vars]
-ansible_python_interpreter=/usr/bin/python3
+# Use the python running ansible: the system python can be too old (Rocky 8)
+ansible_python_interpreter="{{ ansible_playbook_python }}"

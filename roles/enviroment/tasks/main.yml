@@ -7,19 +7,26 @@
     version: master
   register: ohmyzsh_clone
 
+# mise (shipped with Omarchy) replaces asdf, so only set asdf up elsewhere
+- name: runtimes| is mise available
+  ansible.builtin.stat:
+    path: /usr/bin/mise
+  register: mise_stat
+
 - name: asdf| install via homebrew (macOS)
   community.general.homebrew:
     name: ["asdf"]
     state: present
     update_homebrew: true
-  when: ansible_facts['distribution'] == 'MacOSX'
+  when: ansible_facts['distribution'] == 'MacOSX' and not mise_stat.stat.exists
 
 - name: asdf| install (Linux)
   ansible.builtin.import_tasks: asdf.yml
-  when: ansible_facts['distribution'] != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX' and not mise_stat.stat.exists
 
 - name: node| install via asdf
   ansible.builtin.import_tasks: node.yml
+  when: not mise_stat.stat.exists
 - name: pip| upgrade to latest
   ansible.builtin.pip:
     name: pip
@@ -44,68 +51,6 @@
     src: "{{ ansible_facts.env.HOME }}/.venv/system/bin/hatch"
     dest: "{{ ansible_facts.env.HOME }}/bin/hatch"
     state: link
-
-- name: ntfy| install
-  ansible.builtin.pip:
-    name: ntfy
-    state: latest
-    virtualenv: ~/.venv/system/
-    virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
-
-- name: ntfy| configure
-  ansible.builtin.template:
-    src: ntfy.yml
-    dest: ~/.ntfy.yml
-
-- name: ntfy| symlink into ~/bin
-  ansible.builtin.file:
-    src: "{{ ansible_facts.env.HOME }}/.venv/system/bin/ntfy"
-    dest: "{{ ansible_facts.env.HOME }}/bin/ntfy"
-    state: link
-
-- name: pushbullet| install requests dependency
-  ansible.builtin.pip:
-    name: requests
-    state: latest
-    virtualenv: ~/.venv/system/
-    virtualenv_command: "{{ ansible_facts.python.executable }} -m venv"
-
-- name: pushbullet| clone repository
-  ansible.builtin.git:
-    repo: https://github.com/jchonig/pushbullet.git
-    dest: ~/src/pushbullet/
-
-- name: pushbullet| ensure ~/bin directory exists
-  ansible.builtin.file:
-    path: ~/bin
-    state: directory
-
-- name: pushbullet| check if script exists in ~/bin
-  ansible.builtin.stat:
-    path: ~/bin/pushbullet
-  register: pushbullet_bin
-
-- name: pushbullet| copy script to ~/bin
-  ansible.builtin.copy:
-    src: ~/src/pushbullet/pushbullet
-    dest: ~/bin/pushbullet
-    mode: "0700"
-  when: not pushbullet_bin.stat.exists
-
-- name: pushbullet| set shebang to venv python
-  ansible.builtin.lineinfile:
-    path: ~/bin/pushbullet
-    regex: "^#!"
-    line: "#!{{ ansible_facts.env.HOME }}/.venv/system/bin/python"
-  when: not pushbullet_bin.stat.exists
-
-- name: pushbullet| configure credentials in .netrc
-  ansible.builtin.lineinfile:
-    path: ~/.netrc
-    regexp: "^machine pushbullet\\.com"
-    create: true
-    line: "machine pushbullet.com login {{ pushbullet_user }} password {{ pushbullet_api_token }}"
-    mode: "0600"
 
 - name: black| install
   ansible.builtin.pip:
@@ -140,15 +85,15 @@
 
 - name: my-enviroment| clone repository
   ansible.builtin.git:
-    repo: git@github.com:chrisfleming/my-enviroment.git
+    repo: "{{ myenv_repo }}"
     version: master
-    dest: $HOME/projects/my-enviroment
+    dest: "{{ myenv_dest }}"
     accept_hostkey: false
     recursive: false
   register: enviromentclone
 
 - name: my-enviroment| run setup_links.sh
-  ansible.builtin.command: $HOME/projects/my-enviroment/bin/setup_links.sh
+  ansible.builtin.command: "{{ myenv_dest }}/bin/setup_links.sh"
   changed_when: true
   when: enviromentclone.changed
 
@@ -161,16 +106,25 @@
 
 - name: my-enviroment| fix zsh custom directory permissions
   ansible.builtin.file:
-    path: $HOME/projects/my-enviroment/zsh/custom/
+    path: "{{ myenv_dest }}/zsh/custom/"
     mode: "g-w,o-w"
     recurse: true
+
+# Omarchy keeps its own tmux config, so ~/.tmux.conf (and its plugins) is only
+# present on the other platforms.
+- name: tmux| is my tmux config linked
+  ansible.builtin.stat:
+    path: ~/.tmux.conf
+  register: tmux_conf
 
 - name: tmux| install plugins
   ansible.builtin.git:
     repo: https://github.com/tmux-plugins/tpm
     dest: $HOME/.tmux/plugins/tpm
+  when: tmux_conf.stat.exists
 
 - name: tmux plugins
   ansible.builtin.command: ~/.tmux/plugins/tpm/bin/install_plugins
   register: tpm_result
   changed_when: "'Installing' in tpm_result.stdout"
+  when: tmux_conf.stat.exists

@@ -6,9 +6,33 @@
     update_homebrew: true
   when: ansible_facts['distribution'] == 'MacOSX'
 
+- name: directories| ensure user install directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - ~/bin
+    - ~/.usr/local
+
+- name: system tools| look for tools the OS already provides
+  ansible.builtin.stat:
+    path: "{{ item.0 }}/{{ item.1 }}"
+  loop: "{{ system_bin_dirs | product(system_checked_tools) | list }}"
+  register: system_tool_stats
+  when: prefer_system_packages | bool
+
+- name: system tools| record which are present
+  ansible.builtin.set_fact:
+    system_tools: >-
+      {{ system_tool_stats.results | default([])
+         | selectattr('stat.exists', 'defined') | selectattr('stat.exists')
+         | map(attribute='item') | map('last') | list
+         if prefer_system_packages | bool else [] }}
+
 - name: Install Neovim
   ansible.builtin.import_tasks: neovim.yml
-  when: ansible_facts['distribution'] != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX' and 'nvim' not in system_tools
 - name: Install Local McFly
   ansible.builtin.import_tasks: mcfly.yml
   when: ansible_facts['distribution'] != 'MacOSX'
@@ -29,17 +53,12 @@
   when: ansible_facts['distribution'] != 'MacOSX'
 - name: Install yazi
   ansible.builtin.import_tasks: yazi.yml
-  when: ansible_facts['distribution'] != 'MacOSX'
+  when: ansible_facts['distribution'] != 'MacOSX' and 'yazi' not in system_tools
 
-## We're only going to install a fish shell if it's not present
-- name: install fish| is there a system fish
-  ansible.builtin.stat:
-    path: /usr/bin/fish
-  register: fish_stat
-
+## We're only going to install a fish shell if the system doesn't provide one
 - name: Install fish
   ansible.builtin.import_tasks: fish.yml
-  when: ansible_facts['distribution'] != 'MacOSX' and not fish_stat.stat.exists
+  when: ansible_facts['distribution'] != 'MacOSX' and 'fish' not in system_tools
 - name: Install keychain
   ansible.builtin.import_tasks: keychain.yml
   when: ansible_facts['distribution'] != 'MacOSX'
@@ -47,7 +66,10 @@
   ansible.builtin.import_tasks: starship.yml
   when: ansible_facts['distribution'] != 'MacOSX'
 
-- name: Intall cargo/rust
+# cargo is only needed to build tree-sitter-cli where there is no package for it
+- name: Install cargo/rust
   ansible.builtin.import_tasks: cargo.yml
+  when: "'tree-sitter' not in system_tools"
 - name: Tree Sitter Cli
   ansible.builtin.import_tasks: tree-sitter-cli.yml
+  when: "'tree-sitter' not in system_tools"

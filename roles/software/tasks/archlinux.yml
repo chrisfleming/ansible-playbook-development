@@ -1,0 +1,9 @@
+---
+# Arch and Arch derivatives (e.g. Omarchy). Most of the tools software-local
+# would download as release binaries are in the official repos, so install them
+# here and software-local will skip them.
+- name: Install standard packages (pacman)
+  community.general.pacman:
+    name: "{{ common_packages + arch_packages }}"
+    state: present
+    update_cache: true

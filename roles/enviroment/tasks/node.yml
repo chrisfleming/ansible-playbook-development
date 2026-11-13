@@ -8,7 +8,7 @@
   ansible.builtin.command: asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
   when: "'nodejs' not in asdf_plugins.stdout"
 
-# Using 16.20.2 - as this is the latest supported in CentOS7
+# Default 16.20.2 was the latest supported on CentOS 7. Rocky 8+ can take a newer one: set asdf_node_version
 - name: asdf node| check installed versions
   ansible.builtin.shell: asdf list nodejs 2>/dev/null
   register: asdf_node_versions
@@ -16,8 +16,8 @@
   failed_when: false
 
 - name: asdf node| install node
-  ansible.builtin.command: sh -c "asdf install nodejs 16.20.2"
-  when: "'16.20.2' not in asdf_node_versions.stdout"
+  ansible.builtin.command: sh -c "asdf install nodejs {{ asdf_node_version }}"
+  when: asdf_node_version not in asdf_node_versions.stdout
 
 - name: asdf node| check current default
   ansible.builtin.shell: asdf current nodejs 2>/dev/null
@@ -26,5 +26,5 @@
   failed_when: false
 
 - name: asdf node| set default
-  ansible.builtin.command: asdf set -u nodejs 16.20.2
-  when: "'16.20.2' not in asdf_node_current.stdout"
+  ansible.builtin.command: asdf set -u nodejs {{ asdf_node_version }}
+  when: asdf_node_version not in asdf_node_current.stdout

@@ -1,0 +1,42 @@
+---
+# Packages every supported family gets (names are the same everywhere).
+common_packages:
+  - git
+  - zsh
+  - curl
+  - tmux
+  - zip
+  - unzip
+
+debian_packages:
+  - python3
+  - traceroute
+  - htop
+  - mosh
+  - python3-pip
+  - python3-psycopg2
+  - python3-venv
+  - xz-utils
+
+redhat_packages:
+  - python3
+  - traceroute
+  - python3-pip
+  - tar
+  - xz
+  - bzip2
+  - which
+
+# Arch ships current versions of most of what software-local would download,
+# so these replace the release-binary installs there.
+arch_packages:
+  - fish
+  - htop
+  - mosh
+  - 7zip
+  - python-pipx
+  - python-black
+  - mcfly
+  - yazi
+  - keychain
+  - tree-sitter-cli

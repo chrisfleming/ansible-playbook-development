@@ -38,6 +38,7 @@
     url: "https://api.github.com/repos/{{ github_repo }}/releases/latest"
     return_content: true
   register: latest
+  check_mode: false # read-only lookup, so it also works under --check
   when: cached_version is skipped
 
 - name: "{{ package_name }}| extract version from response"
