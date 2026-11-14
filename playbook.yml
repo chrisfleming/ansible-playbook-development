@@ -79,3 +79,10 @@
   roles:
     - dasht
   tags: ["dasht"]
+
+# Opt-in, work machines only (Cloudflare WARP VPN). Not part of "basic".
+- hosts: 127.0.0.1
+  connection: local
+  roles:
+    - warp
+  tags: ["warp"]

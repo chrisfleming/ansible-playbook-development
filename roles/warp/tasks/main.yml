@@ -1,0 +1,43 @@
+---
+# Cloudflare WARP VPN. Opt-in: only needed on work machines, so it is not part
+# of the "basic" tag. Run it with:
+#
+#   ansible-playbook --ask-become-pass playbook.yml --tags=warp
+#
+# Automated on Arch (including Omarchy) only, via the AUR package.
+# Registration (warp-cli registration new [--team <name>]) is per-device and
+# may need a browser login, so it is left as a manual step.
+
+- name: WARP is only automated on Arch
+  ansible.builtin.debug:
+    msg: "Skipping Cloudflare WARP: no automated install for {{ ansible_os_family }}"
+  when: ansible_os_family != "Archlinux"
+
+- name: Install and enable WARP (Arch)
+  when: ansible_os_family == "Archlinux"
+  block:
+    - name: Check whether cloudflare-warp-bin is installed
+      ansible.builtin.command: pacman -Q cloudflare-warp-bin
+      register: warp_pkg
+      changed_when: false
+      failed_when: false
+
+    # AUR packages must be built as a normal user, so this does not use become.
+    # yay asks for the sudo password itself when it installs the package.
+    - name: Install cloudflare-warp-bin from the AUR
+      ansible.builtin.command: yay -S --needed --noconfirm cloudflare-warp-bin
+      when: warp_pkg.rc != 0
+
+    - name: Enable and start the warp-svc daemon
+      become: true
+      ansible.builtin.systemd:
+        name: warp-svc
+        enabled: true
+        state: started
+
+    - name: Next step
+      ansible.builtin.debug:
+        msg: >-
+          Register this device once with: warp-cli registration new
+          (add --team <name> for Zero Trust), then warp-cli connect.
+          Toggle key: SUPER + ALT + W.
