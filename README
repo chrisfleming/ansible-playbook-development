@@ -37,7 +37,8 @@ ansible-playbook --ask-become-pass playbook.yml --tags=basic
 # Without root:
 ansible-playbook playbook.yml --tags=basic --skip-tags=root
 
-# Other tags: email, dasht, coc, node, desktop (GUI apps, Arch only), warp
+# Other tags: email, dasht, coc, node, desktop (GUI apps, Arch only)
+# Work machines: warp, microsoft (Omarchy web apps), or work for both
 
 If my-enviroment is already checked out somewhere else (e.g. ~/Projects), point
 the playbook at it and run its bin/setup_links.sh yourself:

@@ -1,0 +1,59 @@
+---
+# On Omarchy, some apps are normally added with an Omarchy installer
+# (omarchy-install-terminal, omarchy-install-browser) that also configures
+# them. Those installers ask for sudo themselves, which does not work without
+# a TTY, so the packages come from pacman above and the extra steps are
+# repeated here.
+
+- name: Set up Ghostty the Omarchy way
+  when: "'ghostty' in desktop_packages + desktop_extra_packages"
+  block:
+    - name: Copy Omarchy's Ghostty config if there is none
+      ansible.builtin.command: cp -Rpf /usr/share/omarchy/config/ghostty {{ ansible_facts['env']['HOME'] }}/.config/
+      args:
+        creates: "{{ ansible_facts['env']['HOME'] }}/.config/ghostty"
+
+    - name: Make Ghostty the default terminal
+      ansible.builtin.copy:
+        dest: "{{ ansible_facts['env']['HOME'] }}/.config/xdg-terminals.list"
+        mode: "0644"
+        content: |
+          # Terminal emulator preference order for xdg-terminal-exec
+          # The first found and valid terminal will be used
+          com.mitchellh.ghostty.desktop
+      when: desktop_ghostty_default
+
+- name: Set up Zen the Omarchy way
+  when: "'zen-browser-bin' in desktop_packages + desktop_extra_packages"
+  block:
+    - name: Create Zen's policy directory
+      become: true
+      ansible.builtin.file:
+        path: /opt/zen-browser/distribution
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Install Omarchy's browser policies for Zen
+      become: true
+      ansible.builtin.copy:
+        src: /usr/share/omarchy/default/firefox/policies.json
+        dest: /opt/zen-browser/distribution/policies.json
+        remote_src: true
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Create the user environment directory
+      ansible.builtin.file:
+        path: "{{ ansible_facts['env']['HOME'] }}/.config/environment.d"
+        state: directory
+        mode: "0755"
+
+    - name: Run Zen on Wayland
+      ansible.builtin.copy:
+        dest: "{{ ansible_facts['env']['HOME'] }}/.config/environment.d/omarchy-firefox-wayland.conf"
+        mode: "0644"
+        content: |
+          MOZ_ENABLE_WAYLAND=1

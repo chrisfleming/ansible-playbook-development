@@ -7,6 +7,9 @@ desktop_packages:
   - zen-browser-bin
   - ghostty
 
+# On Omarchy, make Ghostty the default terminal (SUPER + RETURN).
+desktop_ghostty_default: true
+
 # Extra repo packages for one machine. Set per host in
 # vars/hosts/<hostname>.yml (loaded automatically if it exists).
 desktop_extra_packages: []

@@ -80,12 +80,20 @@
     - dasht
   tags: ["dasht"]
 
-# Opt-in, work machines only (Cloudflare WARP VPN). Not part of "basic".
+# Opt-in, work machines only. Not part of "basic". Run both with --tags=work.
+# Cloudflare WARP VPN:
 - hosts: 127.0.0.1
   connection: local
   roles:
     - warp
-  tags: ["warp"]
+  tags: ["warp", "work"]
+
+# Microsoft 365 web apps (Omarchy):
+- hosts: 127.0.0.1
+  connection: local
+  roles:
+    - microsoft
+  tags: ["microsoft", "work"]
 
 # Opt-in, desktop machines only (GUI apps). Not part of "basic".
 - hosts: 127.0.0.1

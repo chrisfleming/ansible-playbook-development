@@ -1,0 +1,28 @@
+---
+# Microsoft 365 web apps (Outlook, Word, Excel, PowerPoint, Teams, OneDrive).
+# Opt-in, work machines only:
+#
+#   ansible-playbook playbook.yml --tags=microsoft     (or --tags=work)
+#
+# Omarchy only: this runs Omarchy's own installer, which creates the launchers
+# in ~/.local/share/applications. No root needed.
+
+- name: Look for Omarchy's Microsoft installer
+  ansible.builtin.stat:
+    path: /usr/share/omarchy/bin/omarchy-install-service-microsoft
+  register: microsoft_installer
+
+- name: Microsoft web apps are only automated on Omarchy
+  ansible.builtin.debug:
+    msg: "Skipping Microsoft web apps: this is not an Omarchy desktop"
+  when: not microsoft_installer.stat.exists
+
+# OneDrive is the last launcher the installer creates, so it marks a full run.
+- name: Install the Microsoft web apps
+  ansible.builtin.command: /usr/share/omarchy/bin/omarchy-install-service-microsoft
+  args:
+    creates: "{{ ansible_facts['env']['HOME'] }}/.local/share/applications/Microsoft OneDrive.desktop"
+  environment:
+    PATH: "/usr/share/omarchy/bin:{{ ansible_facts['env']['PATH'] }}"
+    OMARCHY_PATH: /usr/share/omarchy
+  when: microsoft_installer.stat.exists

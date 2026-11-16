@@ -27,6 +27,15 @@
         name: "{{ desktop_packages + desktop_extra_packages }}"
         state: present
 
+    - name: Check whether this is Omarchy
+      ansible.builtin.stat:
+        path: /usr/share/omarchy
+      register: desktop_omarchy
+
+    - name: Configure the apps Omarchy has its own setup for
+      ansible.builtin.include_tasks: omarchy.yml
+      when: desktop_omarchy.stat.exists
+
     - name: Install desktop packages from the AUR
       ansible.builtin.include_role:
         name: pkgbuild
