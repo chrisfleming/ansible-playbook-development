@@ -1,0 +1,76 @@
+---
+# Build a package from a PKGBUILD in a git repository and install it. Covers
+# AUR packages (the default repo) and my own apps that carry a PKGBUILD.
+#
+#   - ansible.builtin.include_role:
+#       name: pkgbuild
+#     vars:
+#       pkgbuild_name: thunderbird-bin
+#
+# makepkg must run as a normal user, and the command module has no TTY so
+# yay/makepkg can't prompt for sudo. So fetch and build as the user, and use
+# become only for the pacman steps. Dependencies that are themselves only in
+# the AUR are not resolved: build those first.
+
+- name: "Check whether it is installed: {{ pkgbuild_name }}"
+  ansible.builtin.command: pacman -Q {{ pkgbuild_name }}
+  register: pkgbuild_installed
+  changed_when: false
+  failed_when: false
+
+- name: "Build and install {{ pkgbuild_name }}"
+  when: pkgbuild_installed.rc != 0
+  block:
+    - name: "Create a build directory: {{ pkgbuild_name }}"
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: "pkgbuild-{{ pkgbuild_name }}-"
+      register: pkgbuild_tmp
+
+    - name: "Fetch the source: {{ pkgbuild_name }}"
+      ansible.builtin.git:
+        repo: "{{ pkgbuild_repo }}"
+        dest: "{{ pkgbuild_tmp.path }}/src"
+        depth: 1
+
+    - name: "List dependencies: {{ pkgbuild_name }}"
+      ansible.builtin.shell: >-
+        makepkg --printsrcinfo |
+        awk '$1 ~ /^(make)?depends(_{{ ansible_facts['architecture'] }})?$/ { print $3 }'
+      args:
+        chdir: "{{ pkgbuild_tmp.path }}/src/{{ pkgbuild_dir }}"
+      register: pkgbuild_deps
+      changed_when: false
+
+    - name: "Install dependencies: {{ pkgbuild_name }}"
+      become: true
+      ansible.builtin.command:
+        argv: "{{ ['pacman', '-S', '--needed', '--noconfirm', '--asdeps'] + pkgbuild_deps.stdout_lines }}"
+      when: pkgbuild_deps.stdout_lines | length > 0
+
+    - name: "Build {{ pkgbuild_name }}"
+      ansible.builtin.command: makepkg --noconfirm
+      args:
+        chdir: "{{ pkgbuild_tmp.path }}/src/{{ pkgbuild_dir }}"
+
+    # makepkg may also produce a -debug package; leave that out.
+    - name: "List the built packages: {{ pkgbuild_name }}"
+      ansible.builtin.command: makepkg --packagelist
+      args:
+        chdir: "{{ pkgbuild_tmp.path }}/src/{{ pkgbuild_dir }}"
+      register: pkgbuild_files
+      changed_when: false
+
+    - name: "Install {{ pkgbuild_name }}"
+      become: true
+      ansible.builtin.command:
+        argv: >-
+          {{ ['pacman', '-U', '--noconfirm']
+             + (pkgbuild_files.stdout_lines | reject('search', '-debug-[^/]*$') | list) }}
+
+  always:
+    - name: "Remove the build directory: {{ pkgbuild_name }}"
+      ansible.builtin.file:
+        path: "{{ pkgbuild_tmp.path }}"
+        state: absent
+      when: pkgbuild_tmp.path is defined

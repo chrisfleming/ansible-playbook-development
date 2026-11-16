@@ -1,0 +1,4 @@
+---
+desktop_extra_packages:
+  - lmstudio-bin
+  - hermes-desktop

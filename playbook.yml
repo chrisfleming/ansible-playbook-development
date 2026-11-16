@@ -86,3 +86,10 @@
   roles:
     - warp
   tags: ["warp"]
+
+# Opt-in, desktop machines only (GUI apps). Not part of "basic".
+- hosts: 127.0.0.1
+  connection: local
+  roles:
+    - desktop
+  tags: ["desktop"]

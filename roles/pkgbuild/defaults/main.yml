@@ -1,0 +1,8 @@
+---
+# pkgbuild_name: package to build and install (required).
+
+# Git repository holding the PKGBUILD. Defaults to the package's AUR repo.
+pkgbuild_repo: "https://aur.archlinux.org/{{ pkgbuild_name }}.git"
+
+# Directory inside the repository that contains the PKGBUILD.
+pkgbuild_dir: "."

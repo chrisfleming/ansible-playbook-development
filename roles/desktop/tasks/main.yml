@@ -1,0 +1,44 @@
+---
+# Desktop (GUI) applications. Opt-in, so headless machines skip it:
+#
+#   ansible-playbook --ask-become-pass playbook.yml --tags=desktop
+#
+# Arch (including Omarchy) only. Omarchy's own defaults are left to Omarchy;
+# this is only what I add on top.
+
+- name: Desktop apps are only automated on Arch
+  ansible.builtin.debug:
+    msg: "Skipping desktop apps: no automated install for {{ ansible_facts['os_family'] }}"
+  when: ansible_facts['os_family'] != "Archlinux"
+
+- name: Install desktop apps (Arch)
+  when: ansible_facts['os_family'] == "Archlinux"
+  block:
+    - name: Load packages specific to this machine
+      ansible.builtin.include_vars: "{{ item }}"
+      with_first_found:
+        - files: ["{{ ansible_facts['hostname'] }}.yml"]
+          paths: ["{{ role_path }}/vars/hosts"]
+          skip: true
+
+    - name: Install desktop packages (pacman)
+      become: true
+      community.general.pacman:
+        name: "{{ desktop_packages + desktop_extra_packages }}"
+        state: present
+
+    - name: Install desktop packages from the AUR
+      ansible.builtin.include_role:
+        name: pkgbuild
+      vars:
+        pkgbuild_name: "{{ item }}"
+      loop: "{{ desktop_aur_packages }}"
+
+    - name: Install my own apps
+      ansible.builtin.include_role:
+        name: pkgbuild
+      vars:
+        pkgbuild_name: "{{ item.name }}"
+        pkgbuild_repo: "{{ item.repo }}"
+        pkgbuild_dir: "{{ item.dir | default('.') }}"
+      loop: "{{ desktop_own_apps }}"

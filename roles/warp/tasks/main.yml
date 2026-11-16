@@ -16,17 +16,11 @@
 - name: Install and enable WARP (Arch)
   when: ansible_os_family == "Archlinux"
   block:
-    - name: Check whether cloudflare-warp-bin is installed
-      ansible.builtin.command: pacman -Q cloudflare-warp-bin
-      register: warp_pkg
-      changed_when: false
-      failed_when: false
-
-    # AUR packages must be built as a normal user, so this does not use become.
-    # yay asks for the sudo password itself when it installs the package.
     - name: Install cloudflare-warp-bin from the AUR
-      ansible.builtin.command: yay -S --needed --noconfirm cloudflare-warp-bin
-      when: warp_pkg.rc != 0
+      ansible.builtin.include_role:
+        name: pkgbuild
+      vars:
+        pkgbuild_name: cloudflare-warp-bin
 
     - name: Enable and start the warp-svc daemon
       become: true

@@ -1,0 +1,25 @@
+---
+# GUI apps for every desktop, from the official and omarchy repos.
+desktop_packages:
+  - bitwarden
+  - bitwarden-cli
+  - signal-desktop
+  - zen-browser-bin
+  - ghostty
+
+# Extra repo packages for one machine. Set per host in
+# vars/hosts/<hostname>.yml (loaded automatically if it exists).
+desktop_extra_packages: []
+
+# Built from the AUR.
+desktop_aur_packages:
+  - thunderbird-bin
+
+# My own apps, built from the PKGBUILD in their git repository.
+desktop_own_apps:
+  - name: sixmusic
+    repo: https://github.com/chrisfleming/sixmusic.git
+    dir: pkgbuild
+  - name: pingmon
+    repo: https://github.com/chrisfleming/pingmon.git
+    dir: pkgbuild

@@ -40,3 +40,5 @@ arch_packages:
   - yazi
   - keychain
   - tree-sitter-cli
+  - sshfs
+  - traceroute
