@@ -1,0 +1,38 @@
+# {{ ansible_managed }}
+#
+# Adds a "{{ desktop_noise_suppression_name }}" microphone input: the default
+# microphone run through RNNoise (noise-suppression-for-voice). Pick it as the
+# input in calls. Remove this file and restart pipewire to undo.
+context.modules = [
+  { name = libpipewire-module-filter-chain
+    args = {
+      node.description = "{{ desktop_noise_suppression_name }}"
+      media.name = "{{ desktop_noise_suppression_name }}"
+      filter.graph = {
+        nodes = [
+          {
+            type = ladspa
+            name = rnnoise
+            plugin = /usr/lib/ladspa/librnnoise_ladspa.so
+            label = noise_suppressor_mono
+            control = {
+              "VAD Threshold (%)" = {{ desktop_noise_suppression_vad_threshold }}
+              "VAD Grace Period (ms)" = 200
+              "Retroactive VAD Grace (ms)" = 0
+            }
+          }
+        ]
+      }
+      capture.props = {
+        node.name = "capture.rnnoise_source"
+        node.passive = true
+        audio.rate = 48000
+      }
+      playback.props = {
+        node.name = "rnnoise_source"
+        media.class = Audio/Source
+        audio.rate = 48000
+      }
+    }
+  }
+]

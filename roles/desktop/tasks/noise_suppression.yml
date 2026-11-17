@@ -1,0 +1,16 @@
+---
+# A noise-cancelled microphone input, using the noise-suppression-for-voice
+# plugin through a PipeWire filter chain. Per user, no root needed.
+
+- name: Create the PipeWire config directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/pipewire/pipewire.conf.d"
+    state: directory
+    mode: "0755"
+
+- name: Add the noise-cancelled microphone
+  ansible.builtin.template:
+    src: 99-noise-suppression.conf.j2
+    dest: "{{ ansible_facts['env']['HOME'] }}/.config/pipewire/pipewire.conf.d/99-noise-suppression.conf"
+    mode: "0644"
+  notify: Restart pipewire

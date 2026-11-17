@@ -6,6 +6,19 @@ desktop_packages:
   - signal-desktop
   - zen-browser-bin
   - ghostty
+  # Logitech device manager (MX Master etc.); its udev rules give access
+  # without root.
+  - solaar
+  # RNNoise noise suppression plugin for the microphone. Installing it only
+  # provides the plugin; PipeWire needs a filter-chain config to use it.
+  - noise-suppression-for-voice
+
+# Add a noise-cancelled microphone input (needs noise-suppression-for-voice
+# above). Raise the threshold if background noise still gets through, lower
+# it if quiet speech gets cut off.
+desktop_noise_suppression: true
+desktop_noise_suppression_name: Noise Cancelling Microphone
+desktop_noise_suppression_vad_threshold: 50.0
 
 # On Omarchy, make Ghostty the default terminal (SUPER + RETURN).
 desktop_ghostty_default: true

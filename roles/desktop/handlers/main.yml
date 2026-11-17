@@ -1,0 +1,8 @@
+---
+# Briefly drops audio (including any call in progress), so it only runs when
+# the PipeWire config actually changes.
+- name: Restart pipewire
+  ansible.builtin.systemd:
+    name: pipewire.service
+    scope: user
+    state: restarted
